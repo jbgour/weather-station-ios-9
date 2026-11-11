@@ -23,7 +23,7 @@
     else if (rotation !== null) { label += " · venant du " + W.wind(speed, direction).split(" · ")[1]; }
     else if (available) { label += " · direction indisponible"; }
     return '<span class="wind-reading" role="img" aria-label="' + escape(label) + '" title="' + escape(label) + '">' +
-      (rotation === null ? '' : '<svg class="wind-arrow" viewBox="0 0 24 24" fill="none" stroke="' + W.windColor(speed) + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="rotate(' + rotation + ' 12 12)"><path d="M12 21V3m-7 7 7-7 7 7"/></g></svg>') +
+      (rotation === null ? '' : '<svg class="wind-arrow" viewBox="0 0 24 24" fill="' + W.windColor(speed) + '" aria-hidden="true" focusable="false"><g transform="rotate(' + rotation + ' 12 12)"><path d="M12 1L21 23L12 17L3 23Z"/></g></svg>') +
       (available ? Math.round(speed) + '<span class="wind-unit"> km/h</span>' : '—') + '</span>';
   }
   function renderRain(data, now) {
