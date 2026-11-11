@@ -404,6 +404,11 @@
     live = next;
     if (frameRequest === null) { frameRequest = (window.requestAnimationFrame || function (fn) { return window.setTimeout(fn, 16); })(drawLive); }
   }
+  /* The page never scrolls: block one-finger rubber-banding everywhere, in both orientations.
+     Pinch (two fingers) stays available outside the map, and an already zoomed page can still pan. */
+  document.addEventListener("touchmove", function (event) {
+    if (event.touches && event.touches.length === 1 && window.innerWidth >= document.documentElement.clientWidth) { event.preventDefault(); }
+  }, false);
   el("map").addEventListener("touchstart", function (event) {
     if (isControl(event.target)) { return; }
     event.preventDefault();

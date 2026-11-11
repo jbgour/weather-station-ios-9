@@ -145,6 +145,38 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .day-temperatures { margin: 8px 0 4px; padding: 0; }
   .attribution { font-size: 9px; }
 }
+/* Tablet portrait (e.g. 768 × 1024 iPad): full-height layout without scrolling, like landscape.
+   Comes after the narrow rules so it restores the table layout they stack. */
+@media (min-width: 700px) and (max-width: 849px) and (min-height: 860px) and (orientation: portrait) {
+  html.dashboard-page, .dashboard-page body { height: 100%; overflow: hidden; }
+  .dashboard-page .dashboard { height: 100%; padding: 12px 18px 10px; }
+  .dashboard-page .masthead { margin: 0; }
+  .weather-stage { position: absolute; top: 50px; bottom: 55px; left: 18px; right: 18px; }
+  .overview { display: table; width: calc(100% + 32px); height: calc(35rem - 30px); margin: 0 0 0 -16px; }
+  .panel { display: table-cell; margin: 0; }
+  .current, .rain { margin-bottom: 0; }
+  .current { position: relative; width: 40%; }
+  .rain { width: 60%; }
+  .current-main { height: calc(13rem - 20px); margin-top: calc(4rem - 24px); }
+  .hero-temperature { font-size: calc(11rem - 22px); line-height: calc(13rem - 20px); }
+  .hero-icon { width: calc(7rem - 6px); height: calc(7rem - 6px); }
+  .current-details { position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); }
+  .rain-slots { margin: calc(4rem - 20px) 0 0; }
+  .rain-chart { height: calc(35rem - 176px); }
+  /* The radar card becomes a full-width strip below the first row: map left, title and button right. */
+  .radar-card { display: table-caption; caption-side: bottom; position: relative; width: calc(100% - 32px); height: calc(13rem - 20px); margin: 16px 0 0 16px; padding: 0; }
+  .radar-thumb { position: absolute; top: 12px; bottom: 12px; left: 12px; width: 40%; height: auto; margin: 0; }
+  .radar-card .section-top { position: absolute; top: 16px; left: calc(40% + 32px); width: calc(60% - 52px); }
+  .radar-open { position: absolute; left: calc(40% + 32px); right: 20px; bottom: 12px; margin: 0; }
+  .hours, .days { margin-top: 14px; }
+  .hourly-cards { height: calc(27rem - 54px); }
+  .hour-icon { width: calc(7rem - 26px); height: calc(7rem - 26px); }
+  .hour-temperature { font-size: calc(3rem - 2px); line-height: 4rem; }
+  .daily-cards { height: calc(17rem - 40px); }
+  .day-card { padding: 8px; }
+  .day-temperatures { margin: 4px 0 2px; }
+  .dashboard-page .footer { position: fixed; left: 18px; bottom: 0; width: calc(100% - 36px); margin: 0; background: #10191d; }
+}
 @media (max-width: 480px) {
   .dashboard { padding: 14px 10px; }
   .hour-card { padding: 8px 2px; }

@@ -39,6 +39,14 @@ for page in ["index.html", "diagnostic.html", "radar/index.html", "assets/style.
 if missing:
     sys.exit("Unpublished or missing local references:\n  " + "\n  ".join(missing))
 print("OK every local page reference is published by the Pages workflow", flush=True)
+
+# The dashboard's anti-rubber-band check must cover every full-height (no-scroll) layout.
+style = (ROOT / "assets/style.css").read_text()
+script = (ROOT / "assets/app.js").read_text().replace('" +\n    "', "")
+for query in re.findall(r"@media ([^{]+\(orientation: (?:landscape|portrait)\)) \{\n  html\.dashboard-page", style):
+    if query.strip() not in script:
+        sys.exit("assets/app.js FULL_HEIGHT_LAYOUT is missing the full-height media query: " + query.strip())
+print("OK touch handling matches the full-height landscape and portrait layouts", flush=True)
 node = shutil.which("node")
 jsc = Path("/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc")
 if node:

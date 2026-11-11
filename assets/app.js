@@ -119,10 +119,13 @@
       window.location.href = element("radar-link").href;
     }
   }, false);
-  /* Safari 9 can rubber-band even with overflow:hidden. Keep taps and pinch zoom. */
+  /* Safari 9 can rubber-band even with overflow:hidden. Keep taps and pinch zoom.
+     Must match the full-height landscape and tablet-portrait media queries in style.css. */
+  var FULL_HEIGHT_LAYOUT = "(min-width: 850px) and (min-height: 600px) and (orientation: landscape), " +
+    "(min-width: 700px) and (max-width: 849px) and (min-height: 860px) and (orientation: portrait)";
   element("dashboard").addEventListener("touchmove", function (event) {
     if (event.touches && event.touches.length === 1 &&
-        window.matchMedia("(min-width: 850px) and (min-height: 600px) and (orientation: landscape)").matches &&
+        window.matchMedia(FULL_HEIGHT_LAYOUT).matches &&
         window.innerWidth >= doc.documentElement.clientWidth) {
       event.preventDefault();
     }

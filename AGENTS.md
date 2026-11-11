@@ -6,7 +6,7 @@ A static weather dashboard for Safari on iOS 9.3.5. Keep the interface in French
 
 - Production JavaScript must remain ES5: use `XMLHttpRequest`, not fetch, promises, async/await or modern syntax. No runtime dependencies or build step.
 - Keep CSS compatible with Safari 9: no Grid, CSS variables or reliance on modern layout features. Existing tables and SVG work on the target device.
-- Landscape must fit without scrolling at 1024 × 600, 748 and 768 CSS pixels. Preserve pinch zoom, the 44-pixel refresh button and 45-pixel footer. The radar page uses map pinch/pan gestures instead of page zoom on the map; keep its 44-pixel controls.
+- Landscape must fit without scrolling at 1024 × 600, 748 and 768 CSS pixels, and tablet portrait at 768 × 860 to 1024. Keep `FULL_HEIGHT_LAYOUT` in `assets/app.js` in sync with those media queries (checked by `scripts/test.py`). The radar page never scrolls in either orientation. Preserve pinch zoom, the 44-pixel refresh button and 45-pixel footer. The radar page uses map pinch/pan gestures instead of page zoom on the map; keep its 44-pixel controls.
 - Layout sizing uses `innerHeight`: one root rem is 1% of visible height. Body text has an explicit pixel default. Do not restore fixed-height vertical centering or rely solely on vh around Safari toolbars.
 
 ## Code and data

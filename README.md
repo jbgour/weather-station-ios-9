@@ -55,4 +55,4 @@ python3 scripts/test.py
 
 Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, wind, storage failures, network recovery, layout sizing, radar manifest and tile validation, the Pages file allowlist and the certificate fingerprint.
 
-For visual changes, test landscape at **1024 × 600, 748 and 768 CSS pixels**, plus portrait. On the physical iPad, check full-screen mode, refresh after 15 minutes asleep and recovery after losing Wi-Fi. See [AGENTS.md](AGENTS.md) for development constraints.
+For visual changes, test landscape at **1024 × 600, 748 and 768 CSS pixels** and portrait at **768 × 870 to 1024**; both must fit without scrolling. On the physical iPad, check full-screen mode, refresh after 15 minutes asleep and recovery after losing Wi-Fi. See [AGENTS.md](AGENTS.md) for development constraints.
