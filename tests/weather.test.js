@@ -102,6 +102,18 @@ test("Wind arrows show flow, and hourly wind follows the selected sample", funct
   equal(slots[0].windSpeed, null, "old cache without wind remains readable");
   equal(slots[0].windDirection, null, "old cache does not invent direction");
 });
+test("Wind color thresholds match the displayed speed", function () {
+  equal(W.windColor(0), "#b8d9bd", "calm");
+  equal(W.windColor(9), "#b8d9bd", "weak");
+  equal(W.windColor(10), "#e5cf86", "yellow starts at 10");
+  equal(W.windColor(24), "#e5cf86", "yellow upper band");
+  equal(W.windColor(25), "#edac72", "orange starts at 25");
+  equal(W.windColor(39), "#edac72", "orange upper band");
+  equal(W.windColor(40), "#ef8b83", "coral starts at 40");
+  equal(W.windColor(75), "#ef8b83", "strong wind");
+  equal(W.windColor(9.5), "#e5cf86", "displayed 10 uses yellow");
+  equal(W.windColor(null), "#a6b6b9", "missing data is neutral");
+});
 test("Reject malformed responses; allow missing individual values", function () {
   var data = fixture(epoch(2026, 11, 11, 10));
   assert(W.validData(data), "fixture valid");

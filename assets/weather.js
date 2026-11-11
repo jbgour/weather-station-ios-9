@@ -63,6 +63,15 @@
     /* Meteorological direction is the origin. Our upward arrow shows flow. */
     return (direction + 180) % 360;
   }
+  function windColor(speed) {
+    if (!number(speed) || speed < 0) { return "#a6b6b9"; }
+    /* Match the rounded speed displayed beside the arrow. */
+    var displayed = Math.round(speed);
+    if (displayed < 10) { return "#b8d9bd"; }
+    if (displayed < 25) { return "#e5cf86"; }
+    if (displayed < 40) { return "#edac72"; }
+    return "#ef8b83";
+  }
   function weather(code, isDay) {
     if (!number(code)) { return { icon: "unknown", label: "Conditions indisponibles" }; }
     if (code === 0) { return { icon: isDay === 0 ? "moon" : "sun", label: isDay === 0 ? "Ciel dégagé" : "Ensoleillé" }; }
@@ -213,6 +222,6 @@
   }
   root.LyonWeather = { API_URL: API_URL, CACHE_KEY: CACHE_KEY, number: number, time: time, parisOffset: parisOffset,
     calendarDay: calendarDay, updatedLabel: updatedLabel, temperature: temperature, probability: probability,
-    amount: amount, wind: wind, windRotation: windRotation, weather: weather, validData: validData, rainSlots: rainSlots,
+    amount: amount, wind: wind, windRotation: windRotation, windColor: windColor, weather: weather, validData: validData, rainSlots: rainSlots,
     hourSlots: hourSlots, daySlots: daySlots, isStale: isStale, createClient: createClient };
 }(typeof window !== "undefined" ? window : this));
