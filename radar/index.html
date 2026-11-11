@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr" class="radar-page">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://tilecache.rainviewer.com; connect-src https://api.rainviewer.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#10191d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Radar · Lyon</title>
+  <link rel="stylesheet" href="radar.css?v=6">
+  <script defer src="../assets/weather.js?v=12"></script>
+  <script defer src="radar.js?v=5"></script>
+  <script defer src="places.js?v=4"></script>
+  <script defer src="app.js?v=8"></script>
+</head>
+<body>
+<main class="viewer">
+  <div id="map" class="map" role="group" aria-label="Radar de précipitations observées, centré sur Lyon">
+    <div id="stage" class="stage">
+      <div id="map-content" class="map-content">
+        <img id="basemap" class="layer" src="basemap.svg" alt="">
+        <img id="radar-image" class="layer radar-layer" alt="" style="display:none">
+        <img id="coverage" class="layer coverage" alt="" style="display:none">
+      </div>
+      <svg id="map-labels" class="layer labels" viewBox="0 0 512 512" aria-hidden="true" focusable="false"></svg>
+    </div>
+    <a class="back" href="../">‹ Météo</a>
+    <div class="zoom-controls" role="group" aria-label="Zoom de la carte"><button id="zoom-in" type="button" aria-label="Zoomer sur Lyon">+</button><button id="zoom-out" type="button" aria-label="Dézoomer">−</button><span id="zoom-label" class="sr-only" role="status">Autour de Lyon</span></div>
+    <div class="map-key">
+      <div id="scale" class="scale" aria-label="Échelle 20 kilomètres"><span></span><b id="scale-label">20 km</b></div>
+      <div class="legend" aria-label="Intensité des échos radar, de faible à forte"><span class="legend-colors" aria-hidden="true"></span><span class="legend-ends" aria-hidden="true"><span>Faible</span><span>Forte</span></span></div>
+    </div>
+    <p id="map-message" class="map-message">Chargement des images radar…</p>
+    <div class="notice"><span id="status" role="status" aria-live="polite">Connexion à RainViewer…</span><button id="retry" type="button">Réessayer</button></div>
+    <p class="credits">Radar <a href="https://www.rainviewer.com/" target="_blank" rel="noopener noreferrer">RainViewer</a> · Fond <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener noreferrer">Natural Earth</a> · Communes <a href="https://geo.api.gouv.fr/" target="_blank" rel="noopener noreferrer">geo.api.gouv.fr</a></p>
+  </div>
+  <div class="bar">
+    <button id="play" class="play" type="button" aria-label="Lecture" aria-pressed="false" disabled>▶</button>
+    <div id="timeline" class="timeline" role="group" aria-label="Images radar de la dernière heure"></div>
+    <div class="frame-info"><strong id="frame-time" title="">—</strong><span id="frame-age">Observé</span></div>
+  </div>
+  <p class="sr-only">Images observées, sans prévision future. L’heure indiquée est celle de la mosaïque ; les mesures locales peuvent être antérieures. Les zones sombres n’ont pas de couverture radar.</p>
+</main>
+</body>
+</html>

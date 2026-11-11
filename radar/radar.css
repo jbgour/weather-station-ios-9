@@ -1,0 +1,64 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #10191d; color: #edf1ef; }
+body { font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+/* Full-screen map above a single slim control bar; app.js sets the real height. */
+.viewer { position: relative; width: 100%; height: 100%; }
+.map { position: absolute; top: 0; left: 0; right: 0; bottom: 56px; overflow: hidden; background: #17262b; }
+/* Square 512-unit stage scaled to cover the map area (app.js sizes and centers it). */
+.stage { position: absolute; top: 0; left: 0; width: 512px; height: 512px; }
+.layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.map-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%; }
+.labels { pointer-events: none; }
+.radar-layer { opacity: .85; }
+.coverage { opacity: .75; }
+button { font: inherit; color: #edf1ef; background: #223237; border: 1px solid #45575c; border-radius: 7px; min-height: 44px; padding: 0 12px; -webkit-appearance: none; cursor: pointer; }
+button:disabled { opacity: .4; cursor: default; }
+button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 2px; }
+/* Floating map controls share one translucent style. */
+.back, .zoom-controls button, .notice { background: rgba(16, 25, 29, .82); border: 1px solid rgba(184, 202, 206, .3); }
+.back { position: absolute; top: 12px; left: 12px; min-height: 44px; padding: 0 14px; border-radius: 22px; color: #edf1ef; font-size: 15px; line-height: 42px; text-decoration: none; }
+.zoom-controls { position: absolute; top: 12px; right: 12px; width: 44px; }
+.zoom-controls button { display: block; width: 44px; padding: 0; font-size: 24px; line-height: 42px; }
+.zoom-controls button:first-child { border-radius: 22px 22px 0 0; border-bottom: 0; }
+.zoom-controls button + button { border-radius: 0 0 22px 22px; }
+.map-key { position: absolute; left: 12px; bottom: 10px; padding: 6px 8px 4px; border-radius: 6px; background: rgba(16, 25, 29, .7); font-size: 10px; line-height: 13px; color: #d4e2e3; }
+.scale b { font-weight: 400; }
+.scale span { display: block; height: 5px; border: 1px solid #d4e2e3; border-top: 0; margin-bottom: 2px; }
+.legend { width: 110px; margin-top: 6px; }
+.legend-colors { display: block; height: 4px; border-radius: 2px; margin-bottom: 2px; background: #50bfdd; background: linear-gradient(to right, #b8b6a0, #6dbedb, #118bbb, #006a9f, #f4d13b, #f09025); }
+.legend-ends { display: table; width: 100%; }
+.legend-ends span { display: table-cell; width: 50%; }
+.legend-ends span + span { text-align: right; }
+.credits { position: absolute; right: 8px; bottom: 6px; margin: 0; padding: 2px 6px; border-radius: 4px; background: rgba(16, 25, 29, .6); color: #a9bcc1; font-size: 9px; line-height: 13px; }
+.credits a { color: #c0d8df; text-decoration: none; }
+.map-message { position: absolute; top: 42%; left: 50%; width: 320px; margin: 0 0 0 -160px; padding: 14px; text-align: center; background: rgba(16, 25, 29, .88); border: 1px solid #526367; border-radius: 8px; color: #d9e4df; font-size: 14px; }
+/* Status pill appears only while loading or after a failure. */
+.notice { display: none; position: absolute; top: 12px; left: 50%; width: 340px; margin-left: -170px; padding: 6px 6px 6px 14px; border-radius: 22px; font-size: 12px; line-height: 16px; color: #b8d9bd; text-align: left; }
+.loading .notice, .failed .notice { display: table; }
+#status { display: table-cell; vertical-align: middle; }
+#retry { display: none; min-height: 32px; margin-left: 8px; padding: 0 12px; border-radius: 16px; font-size: 12px; }
+.failed .notice { color: #ebc58d; }
+.failed #retry { display: table-cell; }
+/* Bottom bar: play, frame strip, displayed time. */
+.bar { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; padding: 6px 12px; background: #10191d; border-top: 1px solid #2b383c; }
+.play { float: left; width: 44px; height: 44px; padding: 0; border-radius: 22px; background: #2c6f80; border-color: #3f8a9c; font-size: 16px; line-height: 42px; }
+.frame-info { float: right; width: 92px; height: 44px; text-align: right; }
+.frame-info strong { display: block; font-size: 22px; line-height: 26px; font-weight: 400; }
+.frame-info span { display: block; color: #a6b9bd; font-size: 11px; line-height: 16px; white-space: nowrap; }
+.timeline { height: 44px; margin: 0 104px 0 56px; overflow: hidden; }
+.timeline button { float: left; height: 44px; min-height: 44px; margin: 0; padding: 16px 0 0; border: 0; border-radius: 0; background: transparent; color: #93a7ab; font-size: 11px; line-height: 14px; text-align: center; position: relative; }
+.timeline button:before { content: ""; position: absolute; top: 7px; left: 1px; right: 1px; height: 4px; background: #2e4146; }
+.timeline button:first-child:before { border-radius: 2px 0 0 2px; }
+.timeline button:last-child:before { border-radius: 0 2px 2px 0; }
+.timeline button.loaded:before { background: #3f6a75; }
+.timeline button.selected { color: #edf1ef; font-weight: 600; }
+.timeline button.selected:before { top: 5px; height: 8px; background: #8bbdc9; border-radius: 2px; }
+.timeline button:disabled { opacity: 1; color: #5e7176; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+@media (max-width: 600px) {
+  .frame-info { width: 64px; }
+  .frame-info strong { font-size: 18px; }
+  .timeline { margin-right: 74px; }
+  .notice { width: 260px; margin-left: -130px; top: 64px; }
+  .credits { bottom: auto; top: 64px; right: 8px; }
+}

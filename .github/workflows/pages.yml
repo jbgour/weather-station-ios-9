@@ -29,6 +29,9 @@ jobs:
           mkdir -p _site
           cp index.html diagnostic.html _site/
           cp -R assets _site/assets
+          mkdir -p _site/radar
+          cp radar/index.html radar/app.js radar/radar.js radar/places.js radar/radar.css _site/radar/
+          cp radar/basemap.svg radar/basemap-z5.svg radar/basemap-z6.svg _site/radar/
           mkdir -p _site/certificates
           cp certificates/isrg-root-x1.cer _site/certificates/
           touch _site/.nojekyll

@@ -11,7 +11,18 @@ h2 { margin: 0; color: #b4c2c3; font-size: 11px; line-height: 14px; font-weight:
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
 .overview { display: table; width: calc(100% + 32px); margin-left: -16px; border-spacing: 16px 0; table-layout: fixed; }
 .panel { display: table-cell; vertical-align: top; background: #192529; border: 1px solid #2a383d; border-radius: 10px; padding: 16px 20px 12px; }
-.current { width: 34%; }
+.current { width: 32%; }
+.rain { width: 46%; }
+/* Compact entry point to the radar page; the whole card is the tap target. */
+.radar-card { color: #edf1ef; text-decoration: none; }
+.radar-card:active { background: #1f2e33; border-color: #45575c; }
+.radar-thumb { display: block; position: relative; height: 150px; margin-top: 12px; overflow: hidden; border: 1px solid #2f4247; border-radius: 6px; background-color: #17262b; background-image: url(../radar/basemap-z6.svg); background-position: center; background-size: cover; }
+.radar-ring { position: absolute; top: 50%; left: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border: 1px solid rgba(139, 189, 201, .35); border-radius: 50%; }
+.radar-ring-outer { width: 104px; height: 104px; margin: -52px 0 0 -52px; border-color: rgba(139, 189, 201, .18); }
+.radar-pin { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 2px solid #10191d; border-radius: 50%; background: #b8d9bd; }
+.radar-city { position: absolute; top: 50%; left: 50%; margin: 6px 0 0 8px; color: #e3edeb; font-size: 12px; line-height: 14px; text-shadow: 0 0 3px #10191d, 0 0 3px #10191d; }
+.radar-open { display: block; min-height: 44px; margin-top: 10px; padding: 0 12px; border: 1px solid #45575c; border-radius: 7px; background: #223237; color: #edf1ef; font-size: 13px; line-height: 42px; text-align: center; white-space: nowrap; }
+.radar-open span { margin-left: 8px; font-size: 19px; vertical-align: -1px; }
 .current-main { height: 80px; margin-top: 8px; white-space: nowrap; text-align: center; }
 .hero-icon { width: 64px; height: 64px; vertical-align: middle; margin-right: 10px; }
 .hero-temperature { font-size: 72px; font-weight: 300; line-height: 80px; letter-spacing: -4px; vertical-align: middle; }
@@ -28,7 +39,7 @@ h2 { margin: 0; color: #b4c2c3; font-size: 11px; line-height: 14px; font-weight:
 .section-top h2, .unit-label { display: table-cell; vertical-align: middle; }
 .unit-label { text-align: right; color: #a6b6b9; font-size: 11px; line-height: 14px; white-space: nowrap; }
 .rain-slots { display: table; table-layout: fixed; width: 100%; margin-top: 20px; }
-.rain-slot { display: table-cell; vertical-align: bottom; text-align: center; padding: 0 5px; }
+.rain-slot { display: table-cell; vertical-align: bottom; text-align: center; padding: 0 3px; }
 .rain-chart { height: 80px; position: relative; background: #142024; border-radius: 4px; overflow: hidden; }
 .rain-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #8bbdc9; border-radius: 4px 4px 0 0; min-height: 2px; }
 .rain-chart.missing { background: #223034; }
@@ -96,6 +107,9 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .current-details { position: absolute; left: 20px; bottom: 14px; width: calc(100% - 40px); }
   .rain-slots { margin-top: calc(8rem - 28px); }
   .rain-chart { height: calc(50rem - 220px); }
+  .radar-card { position: relative; }
+  .radar-thumb { position: absolute; top: 42px; bottom: 68px; left: 20px; right: 20px; height: auto; margin: 0; }
+  .radar-open { position: absolute; left: 20px; right: 20px; bottom: 12px; margin: 0; }
   .hourly-cards { height: calc(30rem - 42px); }
   .hour-icon { width: calc(12rem - 40px); height: calc(12rem - 40px); }
   .hour-temperature { font-size: calc(5rem - 3px); line-height: 5rem; }
@@ -123,7 +137,7 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 @media (max-width: 849px) {
   .dashboard { padding: 18px; }
   .overview, .panel { display: block; width: 100%; margin: 0; }
-  .current { margin-bottom: 14px; }
+  .current, .rain { margin-bottom: 14px; }
   .current-main { height: 90px; }
   .rain-slots { margin: 16px 0 4px; }
   .hour-details .probability, .hour-details .wind-reading { display: block; width: auto; margin: 3px 0 0; text-align: center; }

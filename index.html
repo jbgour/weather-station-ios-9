@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="description" content="La météo, les prochaines pluies et les prévisions, d’un coup d’œil.">
   <title>Météo · iPad</title>
-  <link rel="stylesheet" href="assets/style.css?v=11">
+  <link rel="stylesheet" href="assets/style.css?v=13">
   <script defer src="assets/weather.js?v=12"></script>
   <script defer src="assets/app.js?v=12"></script>
 </head>
@@ -32,6 +32,11 @@
         <p id="rain-explainer" class="sr-only">Cumuls de pluie prévus sur les intervalles de 15 minutes indiqués.</p>
         <div id="rain-slots" class="rain-slots"><p class="empty-message">Les prévisions arrivent…</p></div>
       </section>
+      <a class="radar-card panel" href="radar/" aria-label="Ouvrir le radar des pluies de la dernière heure">
+        <div class="section-top"><h2>Radar</h2><span class="unit-label">dernière heure</span></div>
+        <div class="radar-thumb" aria-hidden="true"><span class="radar-ring radar-ring-outer"></span><span class="radar-ring"></span><span class="radar-pin"></span><span class="radar-city">Lyon</span></div>
+        <div class="radar-open">Ouvrir le radar <span aria-hidden="true">›</span></div>
+      </a>
     </div>
     <section class="hours" aria-labelledby="hours-heading"><h2 id="hours-heading">Les prochaines heures</h2><div id="hourly-cards" class="hourly-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
     <section class="days" aria-labelledby="days-heading"><h2 id="days-heading">Les jours à venir</h2><div id="daily-cards" class="daily-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
