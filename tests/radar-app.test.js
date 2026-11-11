@@ -137,10 +137,12 @@ test("Pan, pinch and buttons zoom within the radar square", function () {
 });
 test("Back link stays inside the home-screen app", function () {
   var stopped = false;
-  el("back").href = "https://example.test/"; window.location = { href: "https://example.test/radar/" }; window.navigator = { standalone: true };
+  /* Node 21+ has a read-only global navigator, so define it instead of assigning. */
+  function setNavigator(value) { Object.defineProperty(window, "navigator", { value: value, configurable: true, writable: true }); }
+  el("back").href = "https://example.test/"; window.location = { href: "https://example.test/radar/" }; setNavigator({ standalone: true });
   el("back").listeners.click({ preventDefault: function () { stopped = true; } });
   check(stopped && window.location.href === "https://example.test/", "standalone navigation from script");
-  window.navigator = undefined;
+  setNavigator(undefined);
 });
 test("Dry radar gives a dry forecast without motion", function () {
   boot("dry");
