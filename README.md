@@ -1,72 +1,57 @@
-# Lyon Weather — iPad iOS 9
+# Weather dashboard for old iPads
 
-A static weather dashboard for Safari on iOS 9.3.5: current conditions, rainfall over the next hour, six hourly forecasts and the next three days. No accounts, application server, tracking or production dependencies. The dashboard and diagnostic interface are in French; documentation and technical messages are in English.
+A lightweight, French-language weather dashboard for Safari on **iOS 9.3.5**: current conditions, rain over the next hour, six hourly forecasts and three upcoming days. Plain HTML, CSS and ES5 JavaScript, with no build step, accounts, API keys or production dependencies.
+
+**[Open the dashboard](https://jbgour.github.io/weather-station-ios-9/)** · Designed for a landscape iPad, including full-screen mode. In Safari, use **Share → Add to Home Screen**.
 
 ## Run locally
+
+Clone or download this repository, then run inside its directory:
 
 ```sh
 python3 -m http.server 8000 --directory .
 ```
 
-Open `http://localhost:8000/`. On an iPad connected to the same Wi-Fi network, replace `localhost` with the computer's local IP address. Keep the computer running during this test.
+Open `http://localhost:8000/`. On an iPad on the same Wi-Fi, use `http://<computer-ip>:8000/`. Keep the computer awake while testing; this development server is for your local network, not public hosting.
 
-**First test on the iPad:** open `diagnostic.html` before testing the dashboard. This page checks a real XHR request from the site, the weather response, storage and the available viewport size. Opening the API directly in Safari does not test CORS. The diagnostic only runs when its page is open.
+Open `diagnostic.html` to check the weather connection, storage and viewport size. Internet access is still required for fresh forecasts.
 
-## iOS 9 certificate setup
+## Change the city
 
-The physical iPad reported certificate warnings for both Open-Meteo and GitHub Pages despite a correct clock. Both services currently offer certificate chains leading to ISRG Root X1, which is not included in iOS 9's default trust store. See the [official compatibility list](https://letsencrypt.org/docs/certificate-compatibility/).
+Edit **`LOCATION` at the top of [assets/weather.js](assets/weather.js)**:
 
-Before changing the hosting or adding a proxy:
+```js
+var LOCATION = { name: "Paris", latitude: 48.8566, longitude: 2.3522 };
+```
 
-1. Confirm that the iPad's date, year and time are correct.
-2. With the local HTTP server running, open `http://<computer-ip>:8000/certificates/isrg-root-x1.cer` in Safari on the iPad.
-3. Inspect the certificate installation screen: the certificate must be **ISRG Root X1**, issued by **Internet Security Research Group**. Installing it adds this CA as a system trust anchor. Approve the installation on the iPad if you want to enable that trust.
-4. Close and reopen Safari, then revisit the API and GitHub Pages. They should load without a certificate warning if the missing root was the only issue. Reload `diagnostic.html?v=2` and run the test again.
+This updates the heading, weather requests, diagnostic links and cache key. Use decimal coordinates. After editing JavaScript or CSS, bump the corresponding `?v=` suffixes in the HTML pages so an old iPad loads the new files.
 
-The bundled certificate is an unchanged copy from Let's Encrypt's official download, with a pinned SHA-256 fingerprint checked by the test runner. See [certificate provenance](certificates/README.md). The owner installed it on the physical iPad and confirmed that both the local diagnostic request and the dashboard now work in landscape. Continuing past a browser warning alone is not proof that background XHR requests will work.
+**The clock is intentionally fixed to `Europe/Paris`.** Other cities in metropolitan France work with this change alone. Other timezones require adapting the API timezone and the time/DST helpers; changing the API parameter alone is insufficient. The 15-minute precipitation coverage also varies by region.
 
-## Deploy manually to GitHub Pages
+## Deploy your own copy
 
-1. Commit and push the files to `jbgour/weather-station-ios-9`.
-2. Under **Settings → Pages → Build and deployment**, select **GitHub Actions**.
-3. Under **Actions → Deploy weather dashboard → Run workflow**, select `main` and run the workflow. It tests the code, then publishes only the website files, excluding tests and documentation.
-4. Wait for a successful deployment. Expected address: `https://jbgour.github.io/weather-station-ios-9/` (available only after deployment).
-5. On the iPad, open `diagnostic.html`, then the dashboard. Test HTTPS using this exact address; certificates from some hosts or custom domains may be incompatible with iOS 9.
+1. Fork the repository into a public GitHub repository.
+2. In **Settings → Pages → Source**, select **GitHub Actions**.
+3. Enable Actions if prompted. In **Actions → Deploy weather dashboard → Run workflow**, select **main** and launch it.
+4. After the deployment succeeds, open `https://<your-username>.github.io/<repository-name>/`.
 
-Deployment is manual: pushing a commit does not publish anything. The Freebox Révolution only provides network access. The files can also be served unchanged by a local HTTP server.
+Publishing is manual; pushing a commit does not deploy. The workflow tests first and publishes only the website assets and public certificate, excluding repository metadata, tests and documentation. Other static web servers work too.
 
-## Data and compatibility
+## Old Safari, data and privacy
 
-- [Open-Meteo](https://open-meteo.com/en/docs), fixed coordinates `45.75, 4.85`, `Europe/Paris` timezone, °C, km/h and mm. Conditions are model estimates rather than readings from a local thermometer. Personal use is free under the [service terms](https://open-meteo.com/en/terms).
-- One XHR request on startup, every 15 minutes and on resume when needed; 20-second timeout. Failed requests are retried at most once per minute. The refresh button forces an attempt without starting concurrent requests.
-- Rainfall totals cover the **15 minutes preceding each timestamp**. Intervals overlapping the next 60 minutes are displayed, even if the first has already started or the last ends beyond that hour. Totals are never prorated. Up to five intervals are visible.
-- Hourly cards show a sample every two hours with its hourly precipitation probability, without aggregating probabilities. Daily cards show the maximum hourly probability for that day.
-- Current conditions and hourly cards show wind speed in km/h with a colored direction arrow: soft green below 10, yellow from 10 to 24, orange from 25 to 39, and coral from 40 km/h. Only the arrow changes color; the number remains neutral. Thresholds use the rounded speed displayed on screen. These are visual cues for sustained wind, not official warning thresholds or gust measurements. The arrow points **where the wind is blowing**, with north at the top; accessible labels and tooltips state where it comes from. A southerly wind therefore points upward. Calm winds and missing direction values have no arrow; missing speeds appear as **—**.
-- Unix timestamps are explicitly converted to Paris time using the European daylight saving rule, without `Intl`, native ISO date parsing or reliance on the device's timezone. Daily dates use the offset declared by the API, whose daily timestamps are spaced 24 hours apart, including across daylight saving transitions.
-- The last valid response is saved in `localStorage`, with an in-memory fallback if storage is denied. After one hour without success, the interface flags stale data. Missing values appear as **—**, never zero. There is no service worker: a full page reload without a network connection is not guaranteed to work.
-- ES5 JavaScript; CSS without Grid, flexbox, CSS variables or remote fonts; local SVG icons. Reference layout: landscape at 1,024 × 768 CSS pixels, adapting to Safari's toolbars. Portrait and smaller screens may scroll to preserve readability.
-- On tablet-sized landscape viewports (at least 850 × 600 CSS pixels), the dashboard locks page scrolling and single-finger rubber-banding in Safari 9. Taps and pinch zoom remain available. Portrait, smaller viewports and the diagnostic page retain scrolling.
-- The compact header shows only Lyon. In tablet landscape, a 45-pixel footer sits flush with the bottom of the viewport, with a full-sized 44-pixel refresh button, update information and source/license links on one row. There is no empty space below it. Connection and stale-data messages appear alongside the timestamp when needed.
-- In landscape, the three weather rows grow with the actual viewport height, including standalone iPad mode: extra space enlarges the current temperature, rain chart, hourly forecasts and daily cards instead of becoming blank header/footer margins. Shared card edges, regular gutters and centered hourly metrics keep the layout aligned; daily forecasts use a compact single-row layout. Portrait uses normal document flow and allows vertical scrolling.
-- The visible height is read from `window.innerHeight` on startup, resize, orientation change and resume. One root `rem` unit represents 1% of that height for layout calculations; body text retains an explicit 16-pixel default. This avoids relying solely on legacy Safari's `vh` behavior around browser toolbars.
+- If HTTPS fails, first check the iPad's date and time. iOS 9 may lack **ISRG Root X1**. See the [certificate provenance and fingerprint](certificates/README.md). To install the official bundled copy, open `http://<computer-ip>:8000/certificates/isrg-root-x1.cer`, inspect its identity, approve installation and restart Safari. Installing a root adds a system trust authority; the site never installs it automatically.
+- Refreshes run every 15 minutes and on resume when needed. Failed updates retain the last valid data; after an hour it is marked stale. Storage-denied mode works in memory. A full page reload offline is not guaranteed.
+- Rain values are model forecasts for the **15 minutes preceding each timestamp**, not minute-precise radar predictions. Wind arrows show where the wind blows; speeds are sustained wind, not gusts. Their colors are visual cues, not official alerts.
+- The site and source are public. There is no analytics code or login. GitHub and Open-Meteo receive network requests; do not put secrets or sensitive data in the repository. An old browser remains an old browser, even with HTTPS.
 
-## Run checks
+Weather data: [Open-Meteo](https://open-meteo.com/), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Check its [terms](https://open-meteo.com/en/terms) for your intended use.
+
+## Check changes
 
 ```sh
 python3 scripts/test.py
 ```
 
-The runner uses Node.js when available, otherwise JavaScriptCore on macOS. Tests do not access the network. They cover Paris time, midnight, daylight saving transitions, rainfall totals, missing data, storage, XHR errors and recovery. No packages are required.
+Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, wind, storage failures, network recovery, layout sizing and the certificate fingerprint.
 
-Acceptance checks on the **physical iPad**, which local tests cannot replace:
-
-The local diagnostic and dashboard have been confirmed working after certificate installation. Tests against the published address and after extended sleep remain to be completed.
-
-- Diagnostic: successful request, HTTPS compatibility and storage status.
-- No scrolling in landscape; readable numbers at the intended viewing distance; accessible refresh button.
-- Put the iPad to sleep for at least 15 minutes, wake it and check that the data updates.
-- Disable Wi-Fi: data remains visible and failed refreshes are reported; after an hour, data is marked stale. Re-enable Wi-Fi and check recovery.
-- Try a first load without a network connection, then recovery with a previously saved response. Cached data does not guarantee that the page itself is available offline.
-- Check forecasts around midnight and in both dry and rainy conditions.
-
-Attribution: Open-Meteo weather data, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), using models including Météo-France. The repository's icons were drawn for this project.
+For visual changes, test landscape at **1024 × 600, 748 and 768 CSS pixels**, plus portrait. On the physical iPad, check full-screen mode, refresh after 15 minutes asleep and recovery after losing Wi-Fi. See [AGENTS.md](AGENTS.md) for development constraints.

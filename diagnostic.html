@@ -3,17 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Test iPad · Météo Lyon</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src https://api.open-meteo.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Test iPad · Météo</title>
   <link rel="stylesheet" href="assets/style.css">
-  <script defer src="assets/weather.js?v=2"></script>
-  <script defer src="assets/diagnostic.js?v=2"></script>
+  <script defer src="assets/weather.js?v=12"></script>
+  <script defer src="assets/diagnostic.js?v=12"></script>
 </head>
 <body><main class="diagnostic">
   <h1>Test de connexion de l’iPad</h1>
   <p>Ce test vérifie que Safari peut récupérer la météo depuis cette page. Il ne mesure pas la précision des prévisions.</p>
   <pre id="diagnostic-result" role="status" aria-live="polite">JavaScript en attente…</pre>
   <button id="retry-diagnostic" type="button">Relancer le test</button>
-  <p>Pour isoler un problème HTTPS, <a href="https://api.open-meteo.com/v1/forecast?latitude=45.75&amp;longitude=4.85">ouvrir une requête simple directement dans Safari</a>. Du texte avec des nombres est attendu. Une réponse directe ne garantit pas que la requête depuis le site fonctionne.</p>
+  <p>Pour isoler un problème HTTPS, <a id="basic-api-request" href="https://api.open-meteo.com/">ouvrir une requête simple directement dans Safari</a>. Du texte avec des nombres est attendu. Une réponse directe ne garantit pas que la requête depuis le site fonctionne.</p>
   <p><a id="full-api-request" href="https://api.open-meteo.com/">Ouvrir la requête complète du tableau de bord</a></p>
   <p>Si la date de l’iPad est correcte mais que Safari signale un certificat non vérifiable, tu peux <a href="certificates/isrg-root-x1.cer">installer le certificat officiel ISRG Root X1</a>. Cette installation ajoute l’autorité Internet Security Research Group aux autorités de confiance de l’iPad. Ferme puis rouvre Safari et relance le test.</p>
   <p><a href="./">Ouvrir le tableau de bord →</a></p>

@@ -18,6 +18,8 @@
   window.addEventListener("orientationchange", syncViewport, false);
   function element(id) { return doc.getElementById(id); }
   function text(id, value) { element(id).textContent = value; }
+  text("city-name", W.LOCATION.name);
+  doc.title = W.LOCATION.name + " · Météo";
   function escape(value) {
     return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }

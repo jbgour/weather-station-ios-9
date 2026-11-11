@@ -4,8 +4,12 @@
   var MINUTE = 60000;
   var REFRESH = 15 * MINUTE;
   var STALE = 60 * MINUTE;
-  var CACHE_KEY = "lyon-weather-v1";
-  var API_URL = "https://api.open-meteo.com/v1/forecast?latitude=45.75&longitude=4.85" +
+  /* Change these three values to use another city in the Europe/Paris timezone. */
+  var LOCATION = { name: "Lyon", latitude: 45.75, longitude: 4.85 };
+  var CACHE_KEY = "weather:" + LOCATION.latitude + ":" + LOCATION.longitude + ":Europe/Paris:v1";
+  var BASIC_API_URL = "https://api.open-meteo.com/v1/forecast?latitude=" + encodeURIComponent(LOCATION.latitude) +
+    "&longitude=" + encodeURIComponent(LOCATION.longitude);
+  var API_URL = BASIC_API_URL +
     "&current=temperature_2m,apparent_temperature,weather_code,is_day,wind_speed_10m,wind_direction_10m" +
     "&minutely_15=precipitation&forecast_minutely_15=8" +
     "&hourly=temperature_2m,weather_code,is_day,precipitation_probability,wind_speed_10m,wind_direction_10m" +
@@ -220,7 +224,7 @@
     restore();
     return { state: state, refresh: refresh, tick: function () { changed(state); refresh(false); } };
   }
-  root.LyonWeather = { API_URL: API_URL, CACHE_KEY: CACHE_KEY, number: number, time: time, parisOffset: parisOffset,
+  root.LyonWeather = { LOCATION: LOCATION, BASIC_API_URL: BASIC_API_URL, API_URL: API_URL, CACHE_KEY: CACHE_KEY, number: number, time: time, parisOffset: parisOffset,
     calendarDay: calendarDay, updatedLabel: updatedLabel, temperature: temperature, probability: probability,
     amount: amount, wind: wind, windRotation: windRotation, windColor: windColor, weather: weather, validData: validData, rainSlots: rainSlots,
     hourSlots: hourSlots, daySlots: daySlots, isStale: isStale, createClient: createClient };

@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src https://api.open-meteo.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#10191d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="description" content="La météo de Lyon, les prochaines pluies et les prévisions, d’un coup d’œil.">
-  <title>Lyon · Météo</title>
+  <meta name="description" content="La météo, les prochaines pluies et les prévisions, d’un coup d’œil.">
+  <title>Météo · iPad</title>
   <link rel="stylesheet" href="assets/style.css?v=11">
-  <script defer src="assets/weather.js?v=7"></script>
-  <script defer src="assets/app.js?v=11"></script>
+  <script defer src="assets/weather.js?v=12"></script>
+  <script defer src="assets/app.js?v=12"></script>
 </head>
 <body>
   <main id="dashboard" class="dashboard">
     <header class="masthead">
-      <h1>Lyon<span class="location-dot" aria-hidden="true">.</span></h1>
+      <h1><span id="city-name">Météo</span><span class="location-dot" aria-hidden="true">.</span></h1>
     </header>
     <div class="weather-stage"><div class="weather-content">
     <div class="overview">

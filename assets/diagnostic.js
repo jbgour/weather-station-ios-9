@@ -3,6 +3,7 @@
   var result = document.getElementById("diagnostic-result");
   var button = document.getElementById("retry-diagnostic");
   document.getElementById("full-api-request").href = window.LyonWeather.API_URL;
+  document.getElementById("basic-api-request").href = window.LyonWeather.BASIC_API_URL;
   function failure(details) {
     var messages = {
       network: "Aucune réponse HTTP accessible : réseau, HTTPS ou CORS à vérifier.",
@@ -34,7 +35,7 @@
         button.disabled = state.loading;
         result.textContent = lines + (state.loading ? "Requête météo : en cours…" : state.error ?
           "Requête météo : ÉCHEC\n" + failure(state.errorDetails) :
-          "Requête météo : OK (HTTPS et XHR/CORS)\nTempérature à Lyon : " + window.LyonWeather.temperature(state.data.current.temperature_2m));
+          "Requête météo : OK (HTTPS et XHR/CORS)\nTempérature · " + window.LyonWeather.LOCATION.name + " : " + window.LyonWeather.temperature(state.data.current.temperature_2m));
       }
     });
     client.refresh(true);

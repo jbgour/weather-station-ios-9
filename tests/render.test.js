@@ -68,4 +68,34 @@ test("Layout uses the visible height after fullscreen and toolbar changes", func
   h.listeners.orientationchange();
   equal(h.document.documentElement.style.fontSize, "7.48px", "standalone height with status bar");
 });
+test("City names render as text rather than HTML", function () {
+  var original = W.LOCATION.name;
+  var payload = '<img src=x onerror="alert(1)">';
+  W.LOCATION.name = payload;
+  try {
+    var h = appHarness();
+    equal(h.ids["city-name"].textContent, payload, "literal city label");
+    equal(h.ids["city-name"].innerHTML, "", "no HTML insertion");
+    equal(h.document.title, payload + " · Météo", "literal document title");
+  } finally { W.LOCATION.name = original; }
+});
+test("Untrusted weather strings cannot become markup or icon paths", function () {
+  var h = appHarness(), data = fixture(new Date().getTime() / 1000);
+  data.current.temperature_2m = '<img src=x onerror="alert(1)">';
+  data.current.apparent_temperature = '<script>alert(1)</script>';
+  data.hourly.weather_code[1] = '../../unexpected';
+  h.requests[0].respond(200, data);
+  equal(h.ids["current-temperature"].innerHTML, "—", "reject nonnumeric temperature");
+  equal(h.ids["current-feels"].textContent, "—", "reject nonnumeric felt temperature");
+  assert(h.ids["hourly-cards"].innerHTML.indexOf("unexpected") === -1, "icon paths are allowlisted");
+});
+test("Diagnostic API error details remain plain text", function () {
+  var h = appHarness(), payload = '<img src=x onerror="alert(1)">';
+  this.document = h.document;
+  load("assets/diagnostic.js");
+  h.requests[1].respond(400, { error: true, reason: payload });
+  assert(h.ids["diagnostic-result"].textContent.indexOf(payload) >= 0, "error reason visible as text");
+  equal(h.ids["diagnostic-result"].innerHTML, "", "never insert API reason as HTML");
+  equal(h.ids["basic-api-request"].href, W.BASIC_API_URL, "diagnostic uses configured coordinates");
+});
 print("PASS: " + passed + " tests");
