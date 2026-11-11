@@ -40,6 +40,16 @@ test("Dashboard renders real values, rain intervals and all cards", function () 
   assert(h.ids["updated-at"].textContent.indexOf("heure de Paris") >= 0, "timestamp explicit");
   equal(h.ids.refresh.disabled, false, "button restored");
 });
+test("Radar link stays inside the home-screen app and stays a plain link in Safari", function () {
+  var h = appHarness(), prevented = false, event = { preventDefault: function () { prevented = true; } };
+  h.ids["radar-link"].href = "https://example.test/radar/";
+  h.window.location = { href: "https://example.test/" };
+  h.ids["radar-link"].click(event);
+  assert(!prevented && h.window.location.href === "https://example.test/", "Safari keeps native link navigation");
+  h.window.navigator = { standalone: true };
+  h.ids["radar-link"].click(event);
+  assert(prevented && h.window.location.href === "https://example.test/radar/", "standalone mode navigates from script");
+});
 test("Dashboard first-load failure is explicit and manual refresh recovers", function () {
   var h = appHarness();
   h.requests[0].respond(503, {});

@@ -333,6 +333,13 @@
   el("timeline").addEventListener("touchstart", touchScrub, false);
   el("timeline").addEventListener("touchmove", touchScrub, false);
   el("retry").addEventListener("click", refresh, false);
+  /* Home-screen web apps on iOS open tapped links in Safari; navigating from script stays in the app. */
+  el("back").addEventListener("click", function (event) {
+    if (window.navigator && window.navigator.standalone) {
+      event.preventDefault();
+      window.location.href = el("back").href;
+    }
+  }, false);
   el("map-message").addEventListener("click", function () { if (!available().length) { refresh(); } }, false);
   /* Buttons zoom around the view center to the next named level. */
   function zoomTo(value) {
