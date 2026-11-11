@@ -32,6 +32,8 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 2px; }
 .credits { position: absolute; right: 8px; bottom: 6px; margin: 0; padding: 2px 6px; border-radius: 4px; background: rgba(16, 25, 29, .6); color: #a9bcc1; font-size: 9px; line-height: 13px; }
 .credits a { color: #c0d8df; text-decoration: none; }
 .map-message { position: absolute; top: 42%; left: 50%; width: 320px; margin: 0 0 0 -160px; padding: 14px; text-align: center; background: rgba(16, 25, 29, .88); border: 1px solid #526367; border-radius: 8px; color: #d9e4df; font-size: 14px; }
+/* Shown over the map while a forecast step is displayed. */
+.forecast-badge { display: none; position: absolute; top: 12px; left: 50%; width: 170px; margin: 0 0 0 -85px; padding: 0 12px; border-radius: 16px; background: rgba(16, 25, 29, .82); border: 1px dashed #8fb3bd; color: #cfe3e8; font-size: 12px; line-height: 30px; letter-spacing: .5px; text-align: center; }
 /* Status pill appears only while loading or after a failure. */
 .notice { display: none; position: absolute; top: 12px; left: 50%; width: 340px; margin-left: -170px; padding: 6px 6px 6px 14px; border-radius: 22px; font-size: 12px; line-height: 16px; color: #b8d9bd; text-align: left; }
 .loading .notice, .failed .notice { display: table; }
@@ -55,9 +57,12 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 2px; }
 .timeline-track { position: absolute; top: 11px; height: 2px; border-radius: 1px; background: #33464b; }
 .timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0; border-radius: 1px; background: #8bbdc9; }
 .timeline-thumb { display: none; position: absolute; top: 5px; width: 14px; height: 14px; margin-left: -7px; border-radius: 7px; background: #edf1ef; box-shadow: 0 0 0 3px rgba(139, 189, 201, .35); pointer-events: none; }
+.timeline-future { display: none; position: absolute; top: 11px; height: 0; border-top: 2px dotted #5d7a82; }
 .timeline { position: relative; height: 44px; overflow: hidden; }
 .timeline button { position: relative; float: left; height: 44px; min-height: 44px; margin: 0; padding: 22px 0 0; border: 0; border-radius: 0; background: transparent; color: #93a7ab; font-size: 11px; line-height: 14px; text-align: center; }
 .timeline button:before { content: ""; position: absolute; top: 8px; left: 50%; width: 2px; height: 8px; margin-left: -1px; border-radius: 1px; background: #33464b; }
+.timeline button.forecast { color: #8fb3bd; font-style: italic; }
+.timeline button.forecast:before { top: 9px; width: 6px; height: 6px; margin-left: -4px; border: 1px solid #6f939c; border-radius: 4px; background: #10191d; }
 .timeline button.selected { color: #edf1ef; font-weight: 600; }
 .timeline button:disabled { opacity: 1; color: #55686d; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }

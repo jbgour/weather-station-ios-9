@@ -83,6 +83,8 @@ test("Freshness and absent values", function () {
   equal(W.amount(null), "—", "missing amount"); equal(W.amount(0), "0", "dry"); equal(W.amount(0.04), "< 0,1", "trace");
   equal(W.wind(null, 0), "—", "missing wind"); equal(W.wind(0, null), "0 km/h", "calm");
   equal(W.weather(null, 1).icon, "unknown", "missing weather is not sun");
+  equal([W.weather(0, 1).icon, W.weather(0, 0).icon, W.weather(2, 1).icon, W.weather(2, 0).icon, W.weather(3, 0).icon],
+    ["sun", "moon", "partly", "partly-night", "cloud"], "day and night icons keep clear spells distinct from overcast");
 });
 test("Wind arrows show flow, and hourly wind follows the selected sample", function () {
   equal(W.windRotation(8, 0), 180, "northerly wind blows down");

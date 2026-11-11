@@ -11,7 +11,7 @@ A static weather dashboard for Safari on iOS 9.3.5. Keep the interface in French
 
 ## Code and data
 
-- `assets/weather.js`: location, API, Paris time/DST, forecast selection and cache/network client. `assets/app.js`: rendering and lifecycle. `assets/diagnostic.js`: device troubleshooting. `radar/`: full-screen RainViewer radar (`radar.js` helpers, `app.js` rendering, gestures and lifecycle); see `radar/README.md`.
+- `assets/weather.js`: location, API, Paris time/DST, forecast selection and cache/network client. `assets/app.js`: rendering and lifecycle. `assets/diagnostic.js`: device troubleshooting. `radar/`: full-screen RainViewer radar (`radar.js` helpers, `nowcast.js` client-side motion estimate and forecast steps, `app.js` rendering, gestures and lifecycle); see `radar/README.md`.
 - `LOCATION` is the single city setting for forecasts; the radar is intentionally fixed on Lyon (center, basemaps, places). Time handling is intentionally `Europe/Paris`; another timezone needs implementation and DST tests.
 - Rain totals belong to the preceding 15-minute interval. Missing values remain unavailable, never zero. Wind arrows indicate flow; API directions indicate origin. Colors use rounded displayed speeds at 10, 25 and 40 km/h.
 - Preserve graceful failure when localStorage is denied, stale-data labeling, request timeouts and recovery after sleep.

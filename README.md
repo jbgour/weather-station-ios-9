@@ -1,6 +1,6 @@
 # Weather dashboard for old iPads
 
-A lightweight, French-language weather dashboard for Safari on **iOS 9.3.5**: current conditions, rain over the next hour, six hourly forecasts, three upcoming days and a full-screen rain radar of the past hour. Plain HTML, CSS and ES5 JavaScript, with no build step, accounts, API keys or production dependencies.
+A lightweight, French-language weather dashboard for Safari on **iOS 9.3.5**: current conditions, rain over the next hour, six hourly forecasts, three upcoming days and a full-screen rain radar of the past hour, extended by an estimated forecast for the next hour. Plain HTML, CSS and ES5 JavaScript, with no build step, accounts, API keys or production dependencies.
 
 **[Open the dashboard](https://jbgour.github.io/weather-station-ios-9/)** · Designed for a landscape iPad, including full-screen mode. In Safari, use **Share → Add to Home Screen**.
 
@@ -42,7 +42,7 @@ Publishing is manual; pushing a commit does not deploy. The workflow tests first
 - If HTTPS fails, first check the iPad's date and time. iOS 9 may lack **ISRG Root X1**. See the [certificate provenance and fingerprint](certificates/README.md). To install the official bundled copy, open `http://<computer-ip>:8000/certificates/isrg-root-x1.cer`, inspect its identity, approve installation and restart Safari. Installing a root adds a system trust authority; the site never installs it automatically.
 - Refreshes run every 15 minutes and on resume when needed. Failed updates retain the last valid data; after an hour it is marked stale. Storage-denied mode works in memory. A full page reload offline is not guaranteed.
 - Rain values are model forecasts for the **15 minutes preceding each timestamp**, not minute-precise radar predictions. Wind arrows show where the wind blows; speeds are sustained wind, not gusts. Their colors are visual cues, not official alerts.
-- The radar shows observed RainViewer mosaics from the past hour, not forecasts. Clear areas do not prove dry weather; darkened areas lack radar coverage.
+- The radar shows observed RainViewer mosaics from the past hour, then an estimate for the next hour made on the device by moving the latest rain along its recent motion (no growth or decay). Clear areas do not prove dry weather; darkened areas lack radar coverage.
 - The site and source are public. There is no analytics code or login. GitHub, Open-Meteo and RainViewer (radar page) receive network requests; do not put secrets or sensitive data in the repository. An old browser remains an old browser, even with HTTPS.
 
 Weather data: [Open-Meteo](https://open-meteo.com/), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Check its [terms](https://open-meteo.com/en/terms) for your intended use. Radar: [RainViewer](https://www.rainviewer.com/api/weather-maps-api.html) (personal/educational use with attribution). Basemap: [Natural Earth](https://www.naturalearthdata.com/), public domain.
@@ -53,6 +53,6 @@ Weather data: [Open-Meteo](https://open-meteo.com/), [CC BY 4.0](https://creativ
 python3 scripts/test.py
 ```
 
-Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, wind, storage failures, network recovery, layout sizing, radar manifest and tile validation, the Pages file allowlist and the certificate fingerprint.
+Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, wind, storage failures, network recovery, layout sizing, radar manifest and tile validation, the radar nowcast motion estimate, radar page behavior (timeline, forecast, gestures) with a fake DOM, weather icon files, the Pages file allowlist and the certificate fingerprint.
 
 For visual changes, test landscape at **1024 × 600, 748 and 768 CSS pixels** and portrait at **768 × 870 to 1024**; both must fit without scrolling. On the physical iPad, check full-screen mode, refresh after 15 minutes asleep and recovery after losing Wi-Fi. See [AGENTS.md](AGENTS.md) for development constraints.

@@ -1,8 +1,10 @@
 (function () {
   "use strict";
-  var R = window.LyonRadar, W = window.LyonWeather;
+  var R = window.LyonRadar, W = window.LyonWeather, N = window.LyonNowcast;
   var frames = [], images = {}, selected = -1, playing = false, animation = null;
   var loading = false, generation = 0, coverageZoom = null, lastAttempt = 0;
+  /* Extrapolated steps after the latest observed frame, which they all shift (see nowcast.js). */
+  var forecast = [], forecastBase = -1;
   /* Geographic magnification is continuous between the extreme levels; the buttons step through them. */
   var zoomLevels = [0.25, 0.5, 1, 2, 4, 6], zoomNames = ["Vue large", "Grande région", "Région", "Autour de Lyon", "Métropole", "Lyon proche"];
   var MIN_SCALE = zoomLevels[0], MAX_SCALE = zoomLevels[zoomLevels.length - 1];
@@ -128,10 +130,14 @@
     stage.style.top = Math.round((viewHeight - mapSize) / 2) + "px";
     applyZoom();
   }
-  function ready(index) { return index >= 0 && index < frames.length && images[imageKey(frames[index])] && images[imageKey(frames[index])].loaded; }
+  /* Timeline slots: observed frames first, then forecast steps. */
+  function total() { return frames.length + forecast.length; }
+  function isForecast(index) { return index >= frames.length; }
+  function observedReady(index) { return index >= 0 && index < frames.length && images[imageKey(frames[index])] && images[imageKey(frames[index])].loaded; }
+  function ready(index) { return isForecast(index) ? index < total() && observedReady(forecastBase) : observedReady(index); }
   function available() {
     var result = [], i;
-    for (i = 0; i < frames.length; i += 1) { if (ready(i)) { result.push(i); } }
+    for (i = 0; i < total(); i += 1) { if (ready(i)) { result.push(i); } }
     return result;
   }
   function pause() {
@@ -144,44 +150,116 @@
   function buildTimeline() {
     var strip = el("timeline"), i, button;
     while (strip.firstChild) { strip.removeChild(strip.firstChild); }
-    for (i = 0; i < frames.length; i += 1) {
+    var count = Math.max(1, total()), nowIndex = frames.length - 1, time;
+    for (i = 0; i < total(); i += 1) {
+      time = isForecast(i) ? forecast[i - frames.length].time : frames[i].time;
       button = document.createElement("button");
       button.type = "button";
-      button.style.width = (100 / frames.length) + "%";
-      button.textContent = W.time(frames[i].time);
-      button.setAttribute("aria-label", "Image de " + W.time(frames[i].time));
+      button.style.width = (100 / count) + "%";
+      button.textContent = W.time(time);
+      button.setAttribute("aria-label", (isForecast(i) ? "Prévision estimée pour " : "Image de ") + W.time(time));
       button.setAttribute("data-index", String(i));
       strip.appendChild(button);
     }
-    /* The track runs from the first tick to the last, i.e. between the outer cells' centers. */
-    el("timeline-track").style.left = el("timeline-track").style.right = (50 / Math.max(1, frames.length)) + "%";
+    /* Solid track between the observed ticks (cell centers), dotted track over the forecast. */
+    el("timeline-track").style.left = (50 / count) + "%";
+    el("timeline-track").style.right = ((count - nowIndex - 0.5) / count * 100) + "%";
+    el("timeline-future").style.display = forecast.length ? "block" : "none";
+    el("timeline-future").style.left = ((nowIndex + 0.5) / count * 100) + "%";
+    el("timeline-future").style.right = (50 / count) + "%";
   }
   function updateControls() {
     var buttons = el("timeline").childNodes, i;
     el("play").disabled = available().length < 2;
     for (i = 0; i < buttons.length; i += 1) {
       buttons[i].disabled = !ready(i);
-      buttons[i].className = i === selected ? "selected" : "";
+      buttons[i].className = (isForecast(i) ? "forecast" : "") + (i === selected ? " selected" : "");
       buttons[i].setAttribute("aria-pressed", i === selected ? "true" : "false");
     }
     el("timeline-thumb").style.display = selected >= 0 ? "block" : "none";
     if (selected >= 0) {
-      el("timeline-thumb").style.left = ((selected + 0.5) / frames.length * 100) + "%";
-      el("timeline-fill").style.width = (frames.length > 1 ? selected / (frames.length - 1) * 100 : 0) + "%";
+      el("timeline-thumb").style.left = ((selected + 0.5) / total() * 100) + "%";
+      el("timeline-fill").style.width = (frames.length > 1 ? Math.min(selected, frames.length - 1) / (frames.length - 1) * 100 : 0) + "%";
     }
   }
   function show(index) {
     if (!ready(index)) { return; }
     selected = index;
-    el("radar-image").src = R.tileURL(frames[index], tileZoom);
     el("radar-image").style.display = "block";
     el("map-message").style.display = "none";
+    if (isForecast(index)) { showForecast(forecast[index - frames.length]); updateControls(); return; }
+    el("radar-image").src = R.tileURL(frames[index], tileZoom);
+    setTransform(el("radar-image"), "none");
+    el("radar-image").style.opacity = "";
+    el("forecast-badge").style.display = "none";
     var age = Math.max(0, Math.floor((now() - frames[index].time) / 60));
     text("frame-time", W.time(frames[index].time));
     text("frame-age", age < 1 ? "À l’instant" : "Il y a " + age + " min");
     el("frame-time").title = "Mosaïque du " + W.updatedLabel(frames[index].time * 1000) + " · les mesures locales peuvent être antérieures";
     el("map").setAttribute("aria-label", "Radar observé autour de Lyon · mosaïque de " + W.time(frames[index].time));
     updateControls();
+  }
+  /* A forecast step is the latest observed image moved along the estimated motion, fading with lead time. */
+  function showForecast(step) {
+    /* Offsets are fractions of the zoom 6 measurement tile; the displayed tile covers 2^(6 - zoom) of it. */
+    var minutes = Math.round(step.lead / 60), factor = Math.pow(2, tileZoom - N.ZOOM);
+    el("radar-image").src = R.tileURL(frames[forecastBase], tileZoom);
+    setTransform(el("radar-image"), "translate(" + (step.x * factor * 100) + "%," + (step.y * factor * 100) + "%)");
+    el("radar-image").style.opacity = String(0.85 - 0.35 * step.lead / 3600);
+    el("forecast-badge").style.display = "block";
+    text("frame-time", W.time(step.time));
+    text("frame-age", "Prévu dans " + minutes + " min");
+    el("frame-time").title = "Prévision estimée : déplacement de la pluie observée, sans formation ni dissipation";
+    el("map").setAttribute("aria-label", "Prévision estimée du radar autour de Lyon pour " + W.time(step.time));
+  }
+  /* Estimates rain motion from the last observed frames (read through CORS) and adds forecast steps.
+     A failure only removes the forecast; observed frames are unaffected. */
+  function computeNowcast(batch) {
+    var picks = [], samples = [], pending, i, latest;
+    for (i = frames.length - 1; i >= 0 && picks.length < 3; i -= 1) { if (observedReady(i)) { picks.unshift(i); } }
+    if (picks.length < 2 || !N || !document.createElement("canvas").getContext) { return; }
+    latest = picks[picks.length - 1];
+    pending = picks.length;
+    function done() {
+      pending -= 1;
+      if (pending || batch !== generation) { return; }
+      samples.sort(function (a, b) { return a.time - b.time; });
+      var fields = [], dry = true, j;
+      for (j = 0; j < samples.length; j += 1) { if (samples[j].field) { fields.push(samples[j]); dry = dry && N.isDry(samples[j].field); } }
+      if (fields.length < 2 || fields[fields.length - 1].time !== frames[latest].time) { return; }
+      /* No rain anywhere on the tile: nothing can arrive within the hour, so the forecast stays dry. */
+      var motion = dry ? { x: 0, y: 0 } : N.velocity(fields, N.SIZE, N.RADIUS);
+      if (!motion) { return; }
+      forecast = N.forecastSteps(frames[latest].time, motion);
+      forecastBase = latest;
+      buildTimeline();
+      updateControls();
+    }
+    for (i = 0; i < picks.length; i += 1) { readField(frames[picks[i]], done, samples); }
+  }
+  function readField(frame, done, samples) {
+    var image = new window.Image(), finished = false, timer;
+    function finish(field) {
+      if (finished) { return; }
+      finished = true;
+      window.clearTimeout(timer);
+      image.onload = image.onerror = null;
+      samples.push({ time: frame.time, field: field });
+      done();
+    }
+    image.crossOrigin = "anonymous";
+    image.onload = function () {
+      try {
+        var canvas = document.createElement("canvas"), context;
+        canvas.width = canvas.height = N.SIZE;
+        context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, N.SIZE, N.SIZE);
+        finish(N.intensity(context.getImageData(0, 0, N.SIZE, N.SIZE).data, N.SIZE));
+      } catch (ignore) { finish(null); /* Pixels not readable (no CORS): skip the forecast. */ }
+    };
+    image.onerror = function () { finish(null); };
+    timer = window.setTimeout(function () { finish(null); }, 15000);
+    image.src = R.tileURL(frame, N.ZOOM);
   }
   function showNextAvailable() {
     var list = available();
@@ -191,7 +269,8 @@
     if (!playing) { return; }
     showNextAvailable();
     var list = available();
-    animation = window.setTimeout(animate, selected === list[list.length - 1] ? 1800 : 700);
+    /* Linger on the last image and briefly on "now", where observation turns into forecast. */
+    animation = window.setTimeout(animate, selected === list[list.length - 1] ? 1800 : selected === frames.length - 1 && forecast.length ? 1200 : 700);
   }
   function report(message, failed, busy) {
     text("status", message);
@@ -203,6 +282,8 @@
     frames = nextFrames;
     images = {};
     selected = -1;
+    forecast = [];
+    forecastBase = -1;
     var i;
     for (i = 0; i < frames.length; i += 1) {
       var key = imageKey(frames[i]);
@@ -226,6 +307,7 @@
         el("map-message").style.display = "block";
         return;
       }
+      computeNowcast(batch);
       var age = now() - frames[list[list.length - 1]].time;
       if (age > 1800) { report("Dernière image radar ancienne (" + W.time(frames[list[list.length - 1]].time) + ")", true, false); }
       else if (failed) { report(failed + " image" + (failed > 1 ? "s" : "") + " indisponible" + (failed > 1 ? "s" : ""), true, false); }
@@ -320,8 +402,8 @@
   /* Tap a time, or drag a finger along the strip to scrub through frames. */
   function frameAt(clientX) {
     var strip = el("timeline"), rect = strip.getBoundingClientRect();
-    if (!frames.length || rect.width <= 0) { return -1; }
-    return Math.max(0, Math.min(frames.length - 1, Math.floor((clientX - rect.left) / rect.width * frames.length)));
+    if (!total() || rect.width <= 0) { return -1; }
+    return Math.max(0, Math.min(total() - 1, Math.floor((clientX - rect.left) / rect.width * total())));
   }
   function scrubTo(index) {
     if (index < 0) { return; }

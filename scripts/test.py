@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-FILES = ["assets/weather.js", "radar/radar.js", "tests/weather.test.js", "tests/radar.test.js", "tests/client.test.js", "tests/render.test.js"]
+FILES = ["assets/weather.js", "radar/radar.js", "radar/nowcast.js", "tests/weather.test.js", "tests/radar.test.js", "tests/client.test.js", "tests/render.test.js"]
 os.chdir(ROOT)
 certificate = ROOT / "certificates/isrg-root-x1.cer"
 expected_fingerprint = "96bcec06264976f37460779acf28c5a7cfe8a3c0aae11a8ffcee05c0bddf08c6"
@@ -47,15 +47,27 @@ for query in re.findall(r"@media ([^{]+\(orientation: (?:landscape|portrait)\)) 
     if query.strip() not in script:
         sys.exit("assets/app.js FULL_HEIGHT_LAYOUT is missing the full-height media query: " + query.strip())
 print("OK touch handling matches the full-height landscape and portrait layouts", flush=True)
+
+# Weather icons are chosen in JavaScript, so check each named icon has its SVG.
+icons = set(re.findall(r'"([a-z-]+)"', " ".join(re.findall(r"icon: ([^,]+),", (ROOT / "assets/weather.js").read_text()))))
+missing_icons = sorted(name for name in icons if not (ROOT / "assets" / (name + ".svg")).exists())
+if missing_icons:
+    sys.exit("Missing weather icon files: " + ", ".join(missing_icons))
+print("OK every weather icon has an SVG file (" + str(len(icons)) + ")", flush=True)
+# The radar page test replaces window/document globals, so it runs in its own process.
+SUITES = [FILES, ["assets/weather.js", "radar/radar.js", "radar/nowcast.js", "tests/radar-app.test.js"]]
 node = shutil.which("node")
 jsc = Path("/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc")
 if node:
     program = "global.print=console.log; var fs=require('fs'),vm=require('vm');"
     program += "global.load=function(p){vm.runInThisContext(fs.readFileSync(p,'utf8'),{filename:p});};"
     program += "process.argv.slice(1).forEach(global.load);"
-    command = [node, "-e", program, *FILES]
+    runner = [node, "-e", program]
 elif jsc.exists():
-    command = [str(jsc), *FILES]
+    runner = [str(jsc)]
 else:
     sys.exit("Install Node.js to run the tests (no npm dependencies required).")
-raise SystemExit(subprocess.call(command))
+for suite in SUITES:
+    status = subprocess.call(runner + suite)
+    if status:
+        raise SystemExit(status)

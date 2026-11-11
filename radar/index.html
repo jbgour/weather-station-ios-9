@@ -9,11 +9,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>Radar · Lyon</title>
-  <link rel="stylesheet" href="radar.css?v=7">
-  <script defer src="../assets/weather.js?v=12"></script>
+  <link rel="stylesheet" href="radar.css?v=8">
+  <script defer src="../assets/weather.js?v=13"></script>
   <script defer src="radar.js?v=5"></script>
+  <script defer src="nowcast.js?v=1"></script>
   <script defer src="places.js?v=4"></script>
-  <script defer src="app.js?v=11"></script>
+  <script defer src="app.js?v=12"></script>
 </head>
 <body>
 <main class="viewer">
@@ -32,6 +33,7 @@
       <div id="scale" class="scale" aria-label="Échelle 20 kilomètres"><span></span><b id="scale-label">20 km</b></div>
       <div class="legend" aria-label="Intensité des échos radar, de faible à forte"><span class="legend-colors" aria-hidden="true"></span><span class="legend-ends" aria-hidden="true"><span>Faible</span><span>Forte</span></span></div>
     </div>
+    <p id="forecast-badge" class="forecast-badge">Prévision estimée</p>
     <p id="map-message" class="map-message">Chargement des images radar…</p>
     <div class="notice"><span id="status" role="status" aria-live="polite">Connexion à RainViewer…</span><button id="retry" type="button">Réessayer</button></div>
     <p class="credits">Radar <a href="https://www.rainviewer.com/" target="_blank" rel="noopener noreferrer">RainViewer</a> · Fond <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener noreferrer">Natural Earth</a> · Communes <a href="https://geo.api.gouv.fr/" target="_blank" rel="noopener noreferrer">geo.api.gouv.fr</a></p>
@@ -40,12 +42,13 @@
     <button id="play" class="play" type="button" aria-label="Lecture" aria-pressed="false" disabled><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15l12.5-7.5z"/></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></svg></button>
     <div class="timeline-wrap">
       <div id="timeline-track" class="timeline-track" aria-hidden="true"><span id="timeline-fill" class="timeline-fill"></span></div>
+      <div id="timeline-future" class="timeline-future" aria-hidden="true"></div>
       <span id="timeline-thumb" class="timeline-thumb" aria-hidden="true"></span>
       <div id="timeline" class="timeline" role="group" aria-label="Images radar de la dernière heure"></div>
     </div>
     <div class="frame-info"><strong id="frame-time" title="">—</strong><span id="frame-age">Observé</span></div>
   </div>
-  <p class="sr-only">Images observées, sans prévision future. L’heure indiquée est celle de la mosaïque ; les mesures locales peuvent être antérieures. Les zones sombres n’ont pas de couverture radar.</p>
+  <p class="sr-only">Images observées sur la dernière heure, puis prévision estimée sur l’heure suivante en prolongeant le déplacement de la pluie, sans formation ni dissipation. L’heure indiquée est celle de la mosaïque ; les mesures locales peuvent être antérieures. Les zones sombres n’ont pas de couverture radar.</p>
 </main>
 </body>
 </html>

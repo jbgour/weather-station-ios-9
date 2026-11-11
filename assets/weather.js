@@ -79,7 +79,7 @@
   function weather(code, isDay) {
     if (!number(code)) { return { icon: "unknown", label: "Conditions indisponibles" }; }
     if (code === 0) { return { icon: isDay === 0 ? "moon" : "sun", label: isDay === 0 ? "Ciel dégagé" : "Ensoleillé" }; }
-    if (code === 1 || code === 2) { return { icon: isDay === 0 ? "cloud" : "partly", label: "Éclaircies" }; }
+    if (code === 1 || code === 2) { return { icon: isDay === 0 ? "partly-night" : "partly", label: "Éclaircies" }; }
     if (code === 3) { return { icon: "cloud", label: "Couvert" }; }
     if (code === 45 || code === 48) { return { icon: "fog", label: "Brouillard" }; }
     if (code === 56 || code === 57 || code === 66 || code === 67) { return { icon: "rain", label: "Pluie verglaçante" }; }
