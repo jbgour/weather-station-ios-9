@@ -1,6 +1,8 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: #10191d; color: #edf1ef; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; font-size: 16px; -webkit-text-size-adjust: 100%; }
+/* Visible-height unit, updated from innerHeight by app.js on legacy Safari. */
+html.dashboard-page { font-size: 1vh; }
 .dashboard { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; padding: 12px 28px 10px; }
 .masthead { height: 32px; margin-bottom: 16px; text-align: center; }
 h1 { margin: 0; font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 500; }
@@ -83,20 +85,40 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   html.dashboard-page, .dashboard-page body { height: 100%; overflow: hidden; }
   .dashboard-page .dashboard { height: 100%; }
   .dashboard-page .masthead { margin: 0; }
-  .weather-stage { position: absolute; top: 56px; bottom: 61px; left: 28px; right: 28px; }
-  .weather-content { position: absolute; top: 50%; width: 100%; -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+  .weather-stage { position: absolute; top: 50px; bottom: 55px; left: 28px; right: 28px; }
+  .weather-content { width: 100%; }
+  /* Grow each row with the actual viewport, including standalone iPad mode. */
+  .overview { height: calc(50rem - 76px); }
+  .current { position: relative; }
+  .current-main { height: calc(25rem - 70px); margin-top: calc(8rem - 40px); }
+  .hero-temperature { font-size: calc(20rem - 48px); line-height: calc(25rem - 70px); }
+  .hero-icon { width: calc(12rem - 8px); height: calc(12rem - 8px); }
+  .current-details { position: absolute; left: 20px; bottom: 14px; width: calc(100% - 40px); }
+  .rain-slots { margin-top: calc(8rem - 28px); }
+  .rain-chart { height: calc(50rem - 220px); }
+  .hourly-cards { height: calc(30rem - 42px); }
+  .hour-icon { width: calc(12rem - 40px); height: calc(12rem - 40px); }
+  .hour-temperature { font-size: calc(5rem - 3px); line-height: 5rem; }
+  .daily-cards { height: calc(20rem - 68px); }
   .dashboard-page .footer { position: fixed; left: 50%; bottom: 0; width: calc(100% - 56px); max-width: 1144px; margin: 0; background: #10191d; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
 }
 @media (min-width: 850px) and (min-height: 700px) {
-  .panel { padding-top: 20px; padding-bottom: 16px; }
-  .current-main { height: 100px; margin-top: 10px; }
-  .hero-temperature { font-size: 86px; line-height: 100px; }
-  .hero-icon { width: 78px; height: 78px; }
-  .rain-chart { height: 104px; }
-  .hour-icon { width: 42px; height: 42px; }
-  .hour-temperature { font-size: 30px; line-height: 34px; }
-  .hours, .days { margin-top: 20px; }
-  .day-card { padding-top: 16px; padding-bottom: 16px; }
+  .condition { font-size: 21px; line-height: 26px; }
+  .current-details strong { font-size: 24px; line-height: 28px; }
+  .current-details .wind-reading { font-size: 20px; }
+  .detail-label { font-size: 12px; }
+  .rain-amount { font-size: 29px; line-height: 32px; }
+  .rain-interval, .unit-label { font-size: 12px; }
+  .hour-label { font-size: 15px; line-height: 18px; }
+  .hour-details { margin-top: 10px; line-height: 28px; }
+  .hour-details .probability { width: 44px; font-size: 14px; }
+  .hour-details .wind-reading { width: 80px; font-size: 16px; }
+  .wind-arrow { width: 27px; height: 27px; vertical-align: -7px; }
+  .wind-unit { font-size: 12px; }
+  .day-name { font-size: 15px; }
+  .day-icon { width: 32px; height: 32px; }
+  .day-temperatures { font-size: 24px; }
+  .day-chance .probability { font-size: 12px; }
 }
 @media (max-width: 849px) {
   .dashboard { padding: 18px; }

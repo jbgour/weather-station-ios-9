@@ -12,9 +12,9 @@ function appHarness(cached) {
   XHR.prototype.respond = function (status, data) {
     this.status = status; this.readyState = 4; this.responseText = JSON.stringify(data); this.onreadystatechange();
   };
-  var fakeDocument = { hidden: false, body: { className: "" }, getElementById: node,
+  var fakeDocument = { hidden: false, body: { className: "" }, documentElement: { style: {}, clientHeight: 768, clientWidth: 1024 }, getElementById: node,
     addEventListener: function (event, fn) { listeners[event] = fn; } };
-  var fakeWindow = { LyonWeather: W, document: fakeDocument, localStorage: memoryStorage(cached), XMLHttpRequest: XHR,
+  var fakeWindow = { LyonWeather: W, document: fakeDocument, innerHeight: 768, innerWidth: 1024, localStorage: memoryStorage(cached), XMLHttpRequest: XHR,
     setTimeout: function (fn) { timers.push(fn); return timers.length - 1; }, clearTimeout: function (id) { timers[id] = null; },
     setInterval: function (fn) { listeners.poll = fn; }, addEventListener: function (event, fn) { listeners[event] = fn; } };
   this.window = fakeWindow;
@@ -57,5 +57,15 @@ test("Cached stale weather remains visible after network failure", function () {
   equal(h.ids["current-temperature"].innerHTML, before, "keep visible temperature");
   assert(h.ids["connection-status"].textContent.indexOf("Données anciennes") === 0, "stale message");
   assert(h.listeners.pageshow && h.listeners.focus && h.listeners.online && h.listeners.visibilitychange && h.listeners.poll, "wake hooks installed");
+});
+test("Layout uses the visible height after fullscreen and toolbar changes", function () {
+  var h = appHarness();
+  equal(h.document.documentElement.style.fontSize, "7.68px", "fullscreen visible-height unit");
+  h.window.innerHeight = 644;
+  h.listeners.resize();
+  equal(h.document.documentElement.style.fontSize, "6.44px", "toolbars reduce available height");
+  h.window.innerHeight = 748;
+  h.listeners.orientationchange();
+  equal(h.document.documentElement.style.fontSize, "7.48px", "standalone height with status bar");
 });
 print("PASS: " + passed + " tests");

@@ -4,6 +4,18 @@
   var doc = window.document;
   var storage = null;
   var client;
+  function syncViewport() {
+    var root = doc.documentElement;
+    var height = window.innerHeight || (root && root.clientHeight);
+    if (root && root.style && height > 0) {
+      /* One rem is 1% of the visible height; Safari 9's vh can include toolbars. */
+      var unit = (height / 100) + "px";
+      if (root.style.fontSize !== unit) { root.style.fontSize = unit; }
+    }
+  }
+  syncViewport();
+  window.addEventListener("resize", syncViewport, false);
+  window.addEventListener("orientationchange", syncViewport, false);
   function element(id) { return doc.getElementById(id); }
   function text(id, value) { element(id).textContent = value; }
   function escape(value) {
@@ -106,7 +118,7 @@
       event.preventDefault();
     }
   }, false);
-  function resume() { if (!doc.hidden) { client.tick(); } }
+  function resume() { if (!doc.hidden) { syncViewport(); client.tick(); } }
   doc.addEventListener("visibilitychange", resume, false);
   window.addEventListener("pageshow", resume, false);
   window.addEventListener("focus", resume, false);
