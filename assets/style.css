@@ -57,7 +57,7 @@ h2 { margin: 0; color: #b4c2c3; font-size: 12px; font-weight: 500; letter-spacin
 .day-bottom { margin-top: 7px; }
 .day-icon { width: 27px; height: 27px; vertical-align: middle; margin-right: 8px; }
 .day-bottom .probability { display: inline; vertical-align: middle; }
-.footer { display: table; width: 100%; margin-top: 10px; border-top: 1px solid #2b383c; padding-top: 5px; }
+.footer { display: table; width: 100%; margin-top: 5px; border-top: 1px solid #2b383c; padding-top: 2px; }
 .update-info, .refresh-control, .attribution { display: table-cell; vertical-align: middle; }
 .update-info { width: 55%; padding-right: 10px; font-size: 11px; color: #a6b6b9; line-height: 1.7; }
 #connection-status, #updated-at { display: inline; }
@@ -70,6 +70,8 @@ button:disabled { opacity: .65; cursor: default; }
 button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 .attribution { text-align: right; color: #a6b6b9; font-size: 11px; line-height: 1.7; padding-left: 16px; white-space: nowrap; }
 .attribution a { color: #b4c2c3; text-decoration: none; }
+.footer #refresh { min-height: 22px; padding: 1px 8px; font-size: 11px; line-height: 18px; border-color: transparent; background: transparent; border-radius: 4px; }
+.footer #refresh span { margin-left: 5px; font-size: 15px; vertical-align: -1px; }
 .empty-message { color: #a6b6b9; font-size: 14px; line-height: 1.6; padding: 24px 0; margin: 0; }
 .no-script { color: #ebc58d; }
 .diagnostic { max-width: 760px; margin: 40px auto; padding: 24px; }
@@ -98,7 +100,7 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .dashboard { padding-top: 8px; padding-bottom: 8px; }
   .masthead { margin-bottom: 10px; }
   .hours, .days { margin-top: 10px; }
-  .footer { margin-top: 7px; padding-top: 5px; }
+  .footer { margin-top: 5px; padding-top: 2px; }
   .current-main { height: 72px; }
   .hero-temperature { font-size: 65px; }
   .hero-icon { width: 60px; height: 60px; }
