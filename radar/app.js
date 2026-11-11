@@ -137,7 +137,7 @@
   function pause() {
     playing = false;
     window.clearTimeout(animation);
-    text("play", "▶");
+    el("play").className = "play";
     el("play").setAttribute("aria-label", "Lecture");
     el("play").setAttribute("aria-pressed", "false");
   }
@@ -153,14 +153,21 @@
       button.setAttribute("data-index", String(i));
       strip.appendChild(button);
     }
+    /* The track runs from the first tick to the last, i.e. between the outer cells' centers. */
+    el("timeline-track").style.left = el("timeline-track").style.right = (50 / Math.max(1, frames.length)) + "%";
   }
   function updateControls() {
     var buttons = el("timeline").childNodes, i;
     el("play").disabled = available().length < 2;
     for (i = 0; i < buttons.length; i += 1) {
       buttons[i].disabled = !ready(i);
-      buttons[i].className = (ready(i) ? "loaded" : "") + (i === selected ? " selected" : "");
+      buttons[i].className = i === selected ? "selected" : "";
       buttons[i].setAttribute("aria-pressed", i === selected ? "true" : "false");
+    }
+    el("timeline-thumb").style.display = selected >= 0 ? "block" : "none";
+    if (selected >= 0) {
+      el("timeline-thumb").style.left = ((selected + 0.5) / frames.length * 100) + "%";
+      el("timeline-fill").style.width = (frames.length > 1 ? selected / (frames.length - 1) * 100 : 0) + "%";
     }
   }
   function show(index) {
@@ -305,7 +312,7 @@
   el("play").addEventListener("click", function () {
     if (playing) { pause(); return; }
     playing = true;
-    text("play", "❚❚");
+    el("play").className = "play playing";
     el("play").setAttribute("aria-label", "Pause");
     el("play").setAttribute("aria-pressed", "true");
     animate();

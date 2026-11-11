@@ -41,24 +41,30 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 2px; }
 .failed #retry { display: table-cell; }
 /* Bottom bar: play, frame strip, displayed time. */
 .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; padding: 6px 12px; background: #10191d; border-top: 1px solid #2b383c; }
-.play { float: left; width: 44px; height: 44px; padding: 0; border-radius: 22px; background: #2c6f80; border-color: #3f8a9c; font-size: 16px; line-height: 42px; }
+/* Bare icon button: no text glyph, which iOS would render as an emoji. */
+.play { float: left; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.play svg { width: 24px; height: 24px; fill: #edf1ef; vertical-align: middle; }
+.play .icon-pause, .play.playing .icon-play { display: none; }
+.play.playing .icon-pause { display: inline; }
+.play:active svg { fill: #8bbdc9; }
 .frame-info { float: right; width: 92px; height: 44px; text-align: right; }
 .frame-info strong { display: block; font-size: 22px; line-height: 26px; font-weight: 400; }
 .frame-info span { display: block; color: #a6b9bd; font-size: 11px; line-height: 16px; white-space: nowrap; }
-.timeline { height: 44px; margin: 0 104px 0 56px; overflow: hidden; }
-.timeline button { float: left; height: 44px; min-height: 44px; margin: 0; padding: 16px 0 0; border: 0; border-radius: 0; background: transparent; color: #93a7ab; font-size: 11px; line-height: 14px; text-align: center; position: relative; }
-.timeline button:before { content: ""; position: absolute; top: 7px; left: 1px; right: 1px; height: 4px; background: #2e4146; }
-.timeline button:first-child:before { border-radius: 2px 0 0 2px; }
-.timeline button:last-child:before { border-radius: 0 2px 2px 0; }
-.timeline button.loaded:before { background: #3f6a75; }
+/* Frame strip: one continuous track with a tick and a time per frame, and a thumb on the shown frame. */
+.timeline-wrap { position: relative; height: 44px; margin: 0 108px 0 52px; }
+.timeline-track { position: absolute; top: 11px; height: 2px; border-radius: 1px; background: #33464b; }
+.timeline-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0; border-radius: 1px; background: #8bbdc9; }
+.timeline-thumb { display: none; position: absolute; top: 5px; width: 14px; height: 14px; margin-left: -7px; border-radius: 7px; background: #edf1ef; box-shadow: 0 0 0 3px rgba(139, 189, 201, .35); pointer-events: none; }
+.timeline { position: relative; height: 44px; overflow: hidden; }
+.timeline button { position: relative; float: left; height: 44px; min-height: 44px; margin: 0; padding: 22px 0 0; border: 0; border-radius: 0; background: transparent; color: #93a7ab; font-size: 11px; line-height: 14px; text-align: center; }
+.timeline button:before { content: ""; position: absolute; top: 8px; left: 50%; width: 2px; height: 8px; margin-left: -1px; border-radius: 1px; background: #33464b; }
 .timeline button.selected { color: #edf1ef; font-weight: 600; }
-.timeline button.selected:before { top: 5px; height: 8px; background: #8bbdc9; border-radius: 2px; }
-.timeline button:disabled { opacity: 1; color: #5e7176; }
+.timeline button:disabled { opacity: 1; color: #55686d; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
 @media (max-width: 600px) {
   .frame-info { width: 64px; }
   .frame-info strong { font-size: 18px; }
-  .timeline { margin-right: 74px; }
+  .timeline-wrap { margin-right: 78px; }
   .notice { width: 260px; margin-left: -130px; top: 64px; }
   .credits { bottom: auto; top: 64px; right: 8px; }
 }
