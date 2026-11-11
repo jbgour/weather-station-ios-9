@@ -44,6 +44,7 @@ Deployment is manual: pushing a commit does not publish anything. The Freebox R�
 - Unix timestamps are explicitly converted to Paris time using the European daylight saving rule, without `Intl`, native ISO date parsing or reliance on the device's timezone. Daily dates use the offset declared by the API, whose daily timestamps are spaced 24 hours apart, including across daylight saving transitions.
 - The last valid response is saved in `localStorage`, with an in-memory fallback if storage is denied. After one hour without success, the interface flags stale data. Missing values appear as **—**, never zero. There is no service worker: a full page reload without a network connection is not guaranteed to work.
 - ES5 JavaScript; CSS without Grid, flexbox, CSS variables or remote fonts; local SVG icons. Reference layout: landscape at 1,024 × 768 CSS pixels, adapting to Safari's toolbars. Portrait and smaller screens may scroll to preserve readability.
+- On tablet-sized landscape viewports (at least 850 × 600 CSS pixels), the dashboard locks page scrolling and single-finger rubber-banding in Safari 9. Taps and pinch zoom remain available. Portrait, smaller viewports and the diagnostic page retain scrolling.
 
 ## Run checks
 

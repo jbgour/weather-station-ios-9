@@ -86,6 +86,14 @@
     XMLHttpRequest: window.XMLHttpRequest, setTimeout: function (fn, delay) { return window.setTimeout(fn, delay); },
     clearTimeout: function (id) { window.clearTimeout(id); }, changed: render });
   element("refresh").addEventListener("click", function () { client.refresh(true); }, false);
+  /* Safari 9 can rubber-band even with overflow:hidden. Keep taps and pinch zoom. */
+  element("dashboard").addEventListener("touchmove", function (event) {
+    if (event.touches && event.touches.length === 1 &&
+        window.matchMedia("(min-width: 850px) and (min-height: 600px) and (orientation: landscape)").matches &&
+        window.innerWidth >= doc.documentElement.clientWidth) {
+      event.preventDefault();
+    }
+  }, false);
   function resume() { if (!doc.hidden) { client.tick(); } }
   doc.addEventListener("visibilitychange", resume, false);
   window.addEventListener("pageshow", resume, false);

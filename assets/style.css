@@ -74,6 +74,10 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 .diagnostic p { line-height: 1.7; }
 .diagnostic a { color: #c2e1e7; }
 .diagnostic pre { white-space: pre-wrap; overflow-wrap: break-word; padding: 20px; border: 1px solid #45575c; line-height: 1.8; }
+@media (min-width: 850px) and (min-height: 600px) and (orientation: landscape) {
+  html.dashboard-page, .dashboard-page body { height: 100%; overflow: hidden; }
+  .dashboard-page .dashboard { min-height: 100%; }
+}
 @media (min-width: 850px) and (max-height: 720px) {
   .dashboard { padding-top: 16px; padding-bottom: 10px; }
   .masthead { margin-bottom: 14px; }
@@ -88,6 +92,20 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .hour-icon { width: 32px; height: 32px; margin-top: 5px; }
   .day-card { padding-top: 10px; padding-bottom: 10px; }
   .footer { margin-top: 13px; padding-top: 9px; }
+}
+@media (min-width: 850px) and (max-height: 660px) {
+  .dashboard { padding-top: 8px; padding-bottom: 8px; }
+  h1 { font-size: 33px; }
+  .masthead { margin-bottom: 10px; }
+  .hours, .days { margin-top: 10px; }
+  .footer { margin-top: 7px; padding-top: 5px; }
+  .current-main { height: 72px; }
+  .hero-temperature { font-size: 65px; }
+  .hero-icon { width: 60px; height: 60px; }
+  .rain-chart { height: 55px; }
+  .hour-icon { width: 28px; height: 28px; }
+  .hour-temperature { font-size: 23px; }
+  .day-card { padding-top: 8px; padding-bottom: 8px; }
 }
 @media (max-width: 849px) {
   .dashboard { padding: 22px; }
