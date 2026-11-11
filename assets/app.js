@@ -84,13 +84,13 @@
       element("rain-slots").innerHTML = '<p class="empty-message">Connexion impossible. Réessaie avec le bouton Actualiser.</p>';
     }
     if (stale) {
-      text("connection-status", "Données anciennes" + (state.loading ? " · actualisation…" : state.error ? " · connexion impossible" : ""));
+      text("connection-status", "Données anciennes" + (state.loading ? " · actualisation…" : ""));
     } else if (state.loading) {
-      text("connection-status", state.data ? "Actualisation…" : "Chargement de la météo…");
+      text("connection-status", state.data ? "Actualisation…" : "Chargement…");
     } else if (state.error) {
-      text("connection-status", state.data ? "Actualisation impossible · dernières données conservées" : "Connexion impossible · nouvelle tentative automatique");
+      text("connection-status", state.data ? "Échec de l’actualisation" : "Connexion impossible");
     } else {
-      text("connection-status", "Actualisation toutes les 15 min");
+      text("connection-status", "");
     }
   }
   try { storage = window.localStorage; } catch (ignore) { /* Safari private mode. */ }

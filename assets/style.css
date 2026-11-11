@@ -1,14 +1,10 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: #10191d; color: #edf1ef; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
-.dashboard { max-width: 1200px; margin: 0 auto; padding: 25px 34px 18px; }
-.masthead { display: table; width: 100%; margin-bottom: 21px; }
-.masthead > div { display: table-cell; vertical-align: bottom; }
-.eyebrow { color: #a6b6b9; font-size: 11px; letter-spacing: 3px; font-weight: 600; }
-h1 { margin: 3px 0 0; font-size: 43px; line-height: 1; letter-spacing: -1.8px; font-weight: 500; }
+.dashboard { max-width: 1200px; margin: 0 auto; padding: 16px 34px 10px; }
+.masthead { margin-bottom: 14px; }
+h1 { margin: 0; font-size: 32px; line-height: 1; letter-spacing: -1.3px; font-weight: 500; }
 .location-dot { color: #b8d9bd; }
-.place-note { text-align: right; color: #a6b6b9; font-size: 12px; line-height: 1.8; letter-spacing: 1px; }
-.place-note span { color: #d6dedc; letter-spacing: 0; }
 h2 { margin: 0; color: #b4c2c3; font-size: 12px; font-weight: 500; letter-spacing: 1.1px; text-transform: uppercase; }
 .overview { display: table; width: 100%; table-layout: fixed; border-spacing: 0; }
 .panel { display: table-cell; vertical-align: top; background: #192529; border: 1px solid #2a383d; border-radius: 13px; }
@@ -61,18 +57,19 @@ h2 { margin: 0; color: #b4c2c3; font-size: 12px; font-weight: 500; letter-spacin
 .day-bottom { margin-top: 7px; }
 .day-icon { width: 27px; height: 27px; vertical-align: middle; margin-right: 8px; }
 .day-bottom .probability { display: inline; vertical-align: middle; }
-.footer { display: table; width: 100%; margin-top: 19px; border-top: 1px solid #2b383c; padding-top: 13px; }
-.update-info, .attribution { display: table-cell; vertical-align: middle; }
-.update-info { width: 50%; font-size: 11px; color: #a6b6b9; line-height: 1.7; }
-#connection-status, #updated-at { display: block; }
+.footer { display: table; width: 100%; margin-top: 10px; border-top: 1px solid #2b383c; padding-top: 5px; }
+.update-info, .refresh-control, .attribution { display: table-cell; vertical-align: middle; }
+.update-info { width: 55%; padding-right: 10px; font-size: 11px; color: #a6b6b9; line-height: 1.7; }
+#connection-status, #updated-at { display: inline; }
+#connection-status:not(:empty):after { content: " · "; color: #a6b6b9; }
 #connection-status { color: #b8d9bd; }
 .stale #connection-status, .failed #connection-status { color: #ebc58d; }
 button { font: inherit; cursor: pointer; -webkit-appearance: none; border: 1px solid #45575c; border-radius: 7px; background: #223237; color: #edf1ef; min-height: 44px; padding: 9px 14px; font-size: 13px; }
 button span { margin-left: 12px; font-size: 19px; vertical-align: -1px; }
 button:disabled { opacity: .65; cursor: default; }
 button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
-.attribution { text-align: right; color: #b4c2c3; text-decoration: none; font-size: 11px; line-height: 1.7; padding-left: 16px; }
-.attribution span { color: #a6b6b9; font-size: 10px; }
+.attribution { text-align: right; color: #a6b6b9; font-size: 11px; line-height: 1.7; padding-left: 16px; white-space: nowrap; }
+.attribution a { color: #b4c2c3; text-decoration: none; }
 .empty-message { color: #a6b6b9; font-size: 14px; line-height: 1.6; padding: 24px 0; margin: 0; }
 .no-script { color: #ebc58d; }
 .diagnostic { max-width: 760px; margin: 40px auto; padding: 24px; }
@@ -87,7 +84,6 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 @media (min-width: 850px) and (max-height: 720px) {
   .dashboard { padding-top: 16px; padding-bottom: 10px; }
   .masthead { margin-bottom: 14px; }
-  h1 { font-size: 37px; }
   .current, .rain { padding-top: 15px; padding-bottom: 12px; }
   .current-main { height: 82px; margin-top: 7px; }
   .hero-temperature { font-size: 73px; }
@@ -97,11 +93,9 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .hours, .days { margin-top: 16px; }
   .hour-icon { width: 32px; height: 32px; margin-top: 5px; }
   .day-card { padding-top: 10px; padding-bottom: 10px; }
-  .footer { margin-top: 13px; padding-top: 9px; }
 }
 @media (min-width: 850px) and (max-height: 660px) {
   .dashboard { padding-top: 8px; padding-bottom: 8px; }
-  h1 { font-size: 33px; }
   .masthead { margin-bottom: 10px; }
   .hours, .days { margin-top: 10px; }
   .footer { margin-top: 7px; padding-top: 5px; }
@@ -120,7 +114,6 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .current-main { float: left; margin-right: 25px; }
   .condition { padding-top: 15px; }
   .current-details { clear: both; }
-  .place-note { font-size: 10px; }
   .rain-interval { font-size: 10px; }
   .day-card { padding: 10px 7px; }
   .day-name, .day-temperatures { display: block; text-align: left; }
@@ -139,4 +132,5 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .attribution { display: block; text-align: left; margin-top: 12px; padding: 0; }
   .footer { display: block; }
   .update-info { display: inline-block; width: 65%; }
+  .refresh-control { display: inline-block; }
 }
