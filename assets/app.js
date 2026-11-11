@@ -54,10 +54,10 @@
     var slots = W.daySlots(data, now), html = "", i, slot;
     for (i = 0; i < slots.length; i += 1) {
       slot = slots[i];
-      html += '<div class="day-card"><div class="day-top"><span class="day-name">' + slot.label + '</span>' +
+      html += '<div class="day-card"><div class="day-content"><span class="day-identity">' + icon(slot.condition, "day-icon") + '<span class="day-name">' + slot.label + '</span></span>' +
         '<span class="day-temperatures"><span aria-label="Maximum ' + escape(W.temperature(slot.max)) + '">' + W.temperature(slot.max) + '</span>' +
-        '<span class="day-min" aria-label="Minimum ' + escape(W.temperature(slot.min)) + '">' + W.temperature(slot.min) + '</span></span></div>' +
-        '<div class="day-bottom">' + icon(slot.condition, "day-icon") + chance(slot.probability, true) + '</div></div>';
+        '<span class="day-min" aria-label="Minimum ' + escape(W.temperature(slot.min)) + '">' + W.temperature(slot.min) + '</span></span>' +
+        '<span class="day-chance">' + chance(slot.probability, true) + '</span></div></div>';
     }
     element("daily-cards").innerHTML = html;
   }

@@ -47,6 +47,7 @@ Deployment is manual: pushing a commit does not publish anything. The Freebox R�
 - ES5 JavaScript; CSS without Grid, flexbox, CSS variables or remote fonts; local SVG icons. Reference layout: landscape at 1,024 × 768 CSS pixels, adapting to Safari's toolbars. Portrait and smaller screens may scroll to preserve readability.
 - On tablet-sized landscape viewports (at least 850 × 600 CSS pixels), the dashboard locks page scrolling and single-finger rubber-banding in Safari 9. Taps and pinch zoom remain available. Portrait, smaller viewports and the diagnostic page retain scrolling.
 - The compact header shows only Lyon. In tablet landscape, a 45-pixel footer sits flush with the bottom of the viewport, with a full-sized 44-pixel refresh button, update information and source/license links on one row. There is no empty space below it. Connection and stale-data messages appear alongside the timestamp when needed.
+- The weather content is centered between the header and footer in landscape. Shared card edges, regular gutters and centered hourly metrics keep the layout aligned; daily forecasts use a compact single-row layout. Taller viewports increase the main temperature and icons. Portrait uses normal document flow and allows vertical scrolling.
 
 ## Run checks
 

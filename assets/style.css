@@ -1,65 +1,69 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: #10191d; color: #edf1ef; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
-.dashboard { max-width: 1200px; margin: 0 auto; padding: 16px 34px 10px; }
-.masthead { margin-bottom: 14px; }
-h1 { margin: 0; font-size: 32px; line-height: 1; letter-spacing: -1.3px; font-weight: 500; }
+.dashboard { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; padding: 12px 28px 10px; }
+.masthead { height: 32px; margin-bottom: 16px; text-align: center; }
+h1 { margin: 0; font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 500; }
 .location-dot { color: #b8d9bd; }
-h2 { margin: 0; color: #b4c2c3; font-size: 12px; font-weight: 500; letter-spacing: 1.1px; text-transform: uppercase; }
-.overview { display: table; width: 100%; table-layout: fixed; border-spacing: 0; }
-.panel { display: table-cell; vertical-align: top; background: #192529; border: 1px solid #2a383d; border-radius: 13px; }
-.current { width: 36%; padding: 20px 24px 16px; border-right: 12px solid #10191d; }
-.current-main { white-space: nowrap; margin: 10px 0 0; height: 96px; }
-.hero-icon { width: 77px; height: 77px; vertical-align: middle; margin-right: 12px; }
-.hero-temperature { font-size: 83px; font-weight: 300; line-height: 1.1; letter-spacing: -5px; vertical-align: middle; }
-.degree { font-size: 49px; vertical-align: top; line-height: 1.4; letter-spacing: -1px; }
-.condition { font-size: 19px; margin: 7px 0 14px; color: #e0e8e5; }
-.current-details { border-top: 1px solid #344146; padding-top: 10px; }
-.current-details p { margin: 4px 0; color: #a6b6b9; font-size: 14px; }
-.current-details strong { color: #edf1ef; font-weight: 500; float: right; }
-.rain { padding: 20px 22px 16px; }
+h2 { margin: 0; color: #b4c2c3; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+.overview { display: table; width: calc(100% + 32px); margin-left: -16px; border-spacing: 16px 0; table-layout: fixed; }
+.panel { display: table-cell; vertical-align: top; background: #192529; border: 1px solid #2a383d; border-radius: 10px; padding: 16px 20px 12px; }
+.current { width: 34%; }
+.current-main { height: 80px; margin-top: 8px; white-space: nowrap; text-align: center; }
+.hero-icon { width: 64px; height: 64px; vertical-align: middle; margin-right: 10px; }
+.hero-temperature { font-size: 72px; font-weight: 300; line-height: 80px; letter-spacing: -4px; vertical-align: middle; }
+.degree { font-size: 39px; vertical-align: top; line-height: 1.7; letter-spacing: -1px; }
+.condition { color: #e0e8e5; font-size: 18px; line-height: 22px; text-align: center; margin: 4px 0 12px; }
+.current-details { display: table; width: 100%; table-layout: fixed; border-top: 1px solid #344146; padding-top: 10px; }
+.current-details, .section-top, .rain-slots, .hourly-cards, .day-content, .footer { border-spacing: 0; }
+.current-details p { display: table-cell; width: 50%; margin: 0; text-align: center; vertical-align: top; }
+.current-details p + p { border-left: 1px solid #344146; }
+.detail-label { display: block; color: #a6b6b9; font-size: 11px; line-height: 14px; margin-bottom: 4px; }
+.current-details strong { display: block; color: #edf1ef; font-size: 20px; line-height: 24px; font-weight: 500; }
+.current-details .wind-reading { font-size: 16px; }
 .section-top { display: table; width: 100%; }
 .section-top h2, .unit-label { display: table-cell; vertical-align: middle; }
-.unit-label { text-align: right; color: #a6b6b9; font-size: 11px; white-space: nowrap; }
-.section-note { margin: 9px 0 12px; color: #a6b6b9; font-size: 12px; }
-.rain-slots { display: table; table-layout: fixed; width: 100%; }
+.unit-label { text-align: right; color: #a6b6b9; font-size: 11px; line-height: 14px; white-space: nowrap; }
+.rain-slots { display: table; table-layout: fixed; width: 100%; margin-top: 20px; }
 .rain-slot { display: table-cell; vertical-align: bottom; text-align: center; padding: 0 5px; }
-.rain-chart { height: 81px; position: relative; background: #142024; border-radius: 4px; overflow: hidden; }
+.rain-chart { height: 80px; position: relative; background: #142024; border-radius: 4px; overflow: hidden; }
 .rain-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #8bbdc9; border-radius: 4px 4px 0 0; min-height: 2px; }
 .rain-chart.missing { background: #223034; }
-.rain-amount { display: block; font-size: 22px; font-weight: 500; color: #c2e1e7; margin-top: 8px; }
-.rain-interval { display: block; color: #aebec1; font-size: 11px; margin-top: 7px; white-space: nowrap; }
-.rain-note { margin: 13px 0 0; color: #a6b6b9; font-size: 11px; }
-.hours { margin-top: 22px; }
-.hourly-cards { display: table; table-layout: fixed; width: 100%; margin-top: 11px; }
-.hour-card { display: table-cell; text-align: center; vertical-align: top; border-right: 1px solid #2b383c; padding: 0 6px; }
+.rain-amount { display: block; color: #c2e1e7; font-size: 24px; line-height: 28px; font-weight: 500; margin-top: 8px; }
+.rain-interval { display: block; color: #aebec1; font-size: 11px; line-height: 16px; margin-top: 4px; white-space: nowrap; }
+.hours, .days { margin-top: 16px; }
+.hourly-cards { display: table; table-layout: fixed; width: 100%; margin-top: 10px; background: #152024; border: 1px solid #2a383d; border-radius: 10px; }
+.hour-card { display: table-cell; text-align: center; vertical-align: middle; padding: 10px 6px; border-right: 1px solid #2b383c; }
 .hour-card:last-child { border: 0; }
-.hour-label { color: #b7c4c5; font-size: 13px; margin: 0; }
-.hour-icon { display: block; width: 39px; height: 39px; margin: 7px auto 3px; }
-.hour-temperature { display: block; font-size: 25px; font-weight: 400; }
-.probability { display: block; font-size: 12px; color: #a6ced8; margin-top: 5px; }
-.drop { display: inline-block; width: 9px; height: 12px; margin-right: 5px; vertical-align: -1px; }
-.wind-reading { display: inline-block; color: #d9e4e1; white-space: nowrap; line-height: 18px; font-weight: 500; }
-.wind-arrow { display: inline-block; width: 22px; height: 22px; margin-right: 6px; vertical-align: -6px; }
+.hour-label { color: #b7c4c5; font-size: 13px; line-height: 16px; margin: 0; }
+.hour-icon { display: block; width: 32px; height: 32px; margin: 6px auto 4px; }
+.hour-temperature { display: block; font-size: 27px; line-height: 30px; font-weight: 400; }
+.probability { display: inline-block; color: #a6ced8; font-size: 12px; line-height: 20px; white-space: nowrap; }
+.drop { display: inline-block; width: 9px; height: 12px; margin-right: 4px; vertical-align: -1px; }
+.wind-reading { display: inline-block; color: #d9e4e1; white-space: nowrap; line-height: 20px; font-weight: 500; }
+.wind-arrow { display: inline-block; width: 22px; height: 22px; margin-right: 5px; vertical-align: -6px; }
 .wind-unit { font-size: 11px; font-weight: 400; }
-.hour-details { margin-top: 5px; line-height: 18px; white-space: nowrap; }
-.hour-details .probability { display: inline-block; margin: 0 9px 0 0; }
-.hour-details .wind-reading { font-size: 13px; }
-.days { margin-top: 21px; }
-.daily-cards { display: table; width: 100%; table-layout: fixed; margin-top: 10px; }
-.day-card { display: table-cell; padding: 13px 15px; background: #192529; border-right: 10px solid #10191d; vertical-align: middle; }
-.day-card:last-child { border-right: 0; }
-.day-top { display: table; width: 100%; }
-.day-name, .day-temperatures { display: table-cell; vertical-align: middle; white-space: nowrap; }
-.day-name { font-size: 14px; }
-.day-temperatures { text-align: right; font-size: 20px; }
-.day-min { color: #a6b6b9; padding-left: 7px; }
-.day-bottom { margin-top: 7px; }
-.day-icon { width: 27px; height: 27px; vertical-align: middle; margin-right: 8px; }
-.day-bottom .probability { display: inline; vertical-align: middle; }
-.footer { display: table; width: 100%; margin-top: 5px; border-top: 1px solid #2b383c; padding-top: 2px; }
+.hour-details { margin-top: 6px; line-height: 22px; white-space: nowrap; }
+.hour-details .probability { width: 42px; margin-right: 6px; text-align: right; }
+.hour-details .wind-reading { width: 68px; font-size: 13px; text-align: left; }
+.daily-cards { display: table; width: calc(100% + 24px); margin: 10px 0 0 -12px; border-spacing: 12px 0; table-layout: fixed; }
+.day-card { display: table-cell; padding: 12px; background: #192529; border: 1px solid #2a383d; border-radius: 8px; vertical-align: middle; }
+.day-content { display: table; width: 100%; table-layout: fixed; }
+.day-identity, .day-temperatures, .day-chance { display: table-cell; vertical-align: middle; white-space: nowrap; }
+.day-identity { width: 40%; }
+.day-name { font-size: 13px; vertical-align: middle; }
+.day-temperatures { width: 34%; text-align: center; font-size: 20px; padding: 0 6px; }
+.day-min { color: #a6b6b9; padding-left: 6px; }
+.day-icon { width: 26px; height: 26px; vertical-align: middle; margin-right: 6px; }
+.day-chance { width: 26%; text-align: right; }
+.day-chance .probability { font-size: 11px; }
+.footer { display: table; width: 100%; table-layout: fixed; height: 45px; margin-top: 16px; padding: 0; border-top: 1px solid #2b383c; }
 .update-info, .refresh-control, .attribution { display: table-cell; vertical-align: middle; }
-.update-info { width: 55%; padding-right: 10px; font-size: 11px; color: #a6b6b9; line-height: 1.7; }
+.update-info { width: 40%; padding-right: 10px; color: #a6b6b9; font-size: 10px; line-height: 16px; }
+.refresh-control { width: 20%; text-align: center; }
+.attribution { width: 40%; padding-left: 10px; text-align: right; color: #a6b6b9; font-size: 10px; line-height: 16px; white-space: nowrap; }
+.attribution a { color: #b4c2c3; text-decoration: none; }
 #connection-status, #updated-at { display: inline; }
 #connection-status:not(:empty):after { content: " · "; color: #a6b6b9; }
 #connection-status { color: #b8d9bd; }
@@ -68,9 +72,7 @@ button { font: inherit; cursor: pointer; -webkit-appearance: none; border: 1px s
 button span { margin-left: 12px; font-size: 19px; vertical-align: -1px; }
 button:disabled { opacity: .65; cursor: default; }
 button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
-.attribution { text-align: right; color: #a6b6b9; font-size: 11px; line-height: 1.7; padding-left: 16px; white-space: nowrap; }
-.attribution a { color: #b4c2c3; text-decoration: none; }
-.empty-message { color: #a6b6b9; font-size: 14px; line-height: 1.6; padding: 24px 0; margin: 0; }
+.empty-message { color: #a6b6b9; font-size: 14px; line-height: 22px; padding: 24px 0; margin: 0; }
 .no-script { color: #ebc58d; }
 .diagnostic { max-width: 760px; margin: 40px auto; padding: 24px; }
 .diagnostic h1 { font-size: 30px; margin-bottom: 25px; }
@@ -79,72 +81,49 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 .diagnostic pre { white-space: pre-wrap; overflow-wrap: break-word; padding: 20px; border: 1px solid #45575c; line-height: 1.8; }
 @media (min-width: 850px) and (min-height: 600px) and (orientation: landscape) {
   html.dashboard-page, .dashboard-page body { height: 100%; overflow: hidden; }
-  .dashboard-page .dashboard { min-height: 100%; padding-bottom: 54px; }
-  .dashboard-page .footer {
-    position: fixed;
-    left: 34px;
-    bottom: 0;
-    width: calc(100% - 68px);
-    max-width: 1132px;
-    margin: 0;
-    padding: 0;
-    background: #10191d;
-    height: 45px;
-  }
+  .dashboard-page .dashboard { height: 100%; }
+  .dashboard-page .masthead { margin: 0; }
+  .weather-stage { position: absolute; top: 56px; bottom: 61px; left: 28px; right: 28px; }
+  .weather-content { position: absolute; top: 50%; width: 100%; -webkit-transform: translateY(-50%); transform: translateY(-50%); }
+  .dashboard-page .footer { position: fixed; left: 50%; bottom: 0; width: calc(100% - 56px); max-width: 1144px; margin: 0; background: #10191d; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
 }
-@media (min-width: 1200px) and (min-height: 600px) and (orientation: landscape) {
-  .dashboard-page .footer { left: calc(50% - 566px); }
-}
-@media (min-width: 850px) and (max-height: 720px) {
-  .dashboard { padding-top: 16px; padding-bottom: 10px; }
-  .masthead { margin-bottom: 14px; }
-  .current, .rain { padding-top: 15px; padding-bottom: 12px; }
-  .current-main { height: 82px; margin-top: 7px; }
-  .hero-temperature { font-size: 73px; }
-  .hero-icon { width: 66px; height: 66px; }
-  .condition { margin: 4px 0 10px; }
-  .rain-chart { height: 65px; }
-  .hours, .days { margin-top: 16px; }
-  .hour-icon { width: 32px; height: 32px; margin-top: 5px; }
-  .day-card { padding-top: 10px; padding-bottom: 10px; }
-}
-@media (min-width: 850px) and (max-height: 660px) {
-  .dashboard { padding-top: 8px; padding-bottom: 8px; }
-  .masthead { margin-bottom: 10px; }
-  .hours, .days { margin-top: 10px; }
-  .footer { margin-top: 5px; padding-top: 2px; }
-  .current-main { height: 72px; }
-  .hero-temperature { font-size: 65px; }
-  .hero-icon { width: 60px; height: 60px; }
-  .rain-chart { height: 55px; }
-  .hour-icon { width: 28px; height: 28px; }
-  .hour-temperature { font-size: 23px; }
-  .day-card { padding-top: 8px; padding-bottom: 8px; }
+@media (min-width: 850px) and (min-height: 700px) {
+  .panel { padding-top: 20px; padding-bottom: 16px; }
+  .current-main { height: 100px; margin-top: 10px; }
+  .hero-temperature { font-size: 86px; line-height: 100px; }
+  .hero-icon { width: 78px; height: 78px; }
+  .rain-chart { height: 104px; }
+  .hour-icon { width: 42px; height: 42px; }
+  .hour-temperature { font-size: 30px; line-height: 34px; }
+  .hours, .days { margin-top: 20px; }
+  .day-card { padding-top: 16px; padding-bottom: 16px; }
 }
 @media (max-width: 849px) {
-  .dashboard { padding: 22px; }
-  .overview, .panel { display: block; width: 100%; }
-  .current { border: 1px solid #2a383d; margin-bottom: 15px; }
-  .current-main { float: left; margin-right: 25px; }
-  .condition { padding-top: 15px; }
-  .current-details { clear: both; }
-  .rain-interval { font-size: 10px; }
-  .day-card { padding: 10px 7px; }
-  .day-name, .day-temperatures { display: block; text-align: left; }
-  .day-temperatures { margin-top: 8px; }
-  .attribution { font-size: 10px; }
-  .update-info { width: 40%; }
+  .dashboard { padding: 18px; }
+  .overview, .panel { display: block; width: 100%; margin: 0; }
+  .current { margin-bottom: 14px; }
+  .current-main { height: 90px; }
+  .rain-slots { margin: 16px 0 4px; }
+  .hour-details .probability, .hour-details .wind-reading { display: block; width: auto; margin: 3px 0 0; text-align: center; }
+  .day-content, .day-identity, .day-temperatures, .day-chance { display: block; width: 100%; text-align: center; }
+  .day-temperatures { margin: 8px 0 4px; padding: 0; }
+  .attribution { font-size: 9px; }
 }
 @media (max-width: 480px) {
-  .dashboard { padding: 18px 12px; }
-  .hour-card { padding: 0 2px; }
-  .hour-label { font-size: 11px; }
-  .hour-temperature { font-size: 21px; }
-  .hour-details { white-space: normal; }
-  .hour-details .probability, .hour-details .wind-reading { display: block; margin: 4px 0 0; }
-  .day-name { font-size: 12px; }
-  .attribution { display: block; text-align: left; margin-top: 12px; padding: 0; }
-  .footer { display: block; }
-  .update-info { display: inline-block; width: 65%; }
-  .refresh-control { display: inline-block; }
+  .dashboard { padding: 14px 10px; }
+  .hour-card { padding: 8px 2px; }
+  .hour-label { font-size: 10px; }
+  .hour-temperature { font-size: 23px; }
+  .hour-details .wind-reading { font-size: 11px; }
+  .wind-arrow { width: 18px; height: 18px; vertical-align: -4px; }
+  .day-card { padding: 10px 4px; }
+  .day-name { font-size: 11px; }
+  .day-icon { margin-right: 3px; }
+  .day-temperatures { font-size: 18px; }
+  .footer { table-layout: auto; }
+  .update-info { width: 50%; font-size: 9px; }
+  .refresh-control { width: 20%; }
+  .attribution { width: 30%; padding-left: 6px; white-space: normal; }
+  button { padding: 9px; font-size: 11px; }
+  button span { margin-left: 4px; }
 }
