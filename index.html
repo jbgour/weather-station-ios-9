@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10191d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="description" content="La météo de Lyon, les prochaines pluies et les prévisions, d’un coup d’œil.">
+  <title>Lyon · Météo</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script defer src="assets/weather.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="masthead">
+      <div><span class="eyebrow">LA MÉTÉO</span><h1>Lyon<span class="location-dot" aria-hidden="true">.</span></h1></div>
+      <div class="place-note">45,75° N &nbsp; 4,85° E<br><span>Au fil des heures</span></div>
+    </header>
+    <div class="overview">
+      <section class="current panel" aria-labelledby="current-heading">
+        <h2 id="current-heading">En ce moment</h2>
+        <div class="current-main"><img id="current-icon" class="hero-icon" src="assets/unknown.svg" alt=""><span id="current-temperature" class="hero-temperature">—<span class="degree">°</span></span></div>
+        <p id="current-condition" class="condition">En attente de la météo</p>
+        <div class="current-details"><p>Ressenti <strong id="current-feels">—</strong></p><p>Vent <strong id="current-wind">—</strong></p></div>
+      </section>
+      <section class="rain panel" aria-labelledby="rain-heading">
+        <div class="section-top"><h2 id="rain-heading">Pluie · prochaine heure</h2><span class="unit-label">mm / 15 min</span></div>
+        <p class="section-note">Prévisions par intervalle de 15 minutes</p>
+        <div id="rain-slots" class="rain-slots"><p class="empty-message">Les prévisions arrivent…</p></div>
+        <p class="rain-note">Cumuls prévus sur les intervalles indiqués.</p>
+      </section>
+    </div>
+    <section class="hours" aria-labelledby="hours-heading"><h2 id="hours-heading">Les prochaines heures</h2><div id="hourly-cards" class="hourly-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
+    <section class="days" aria-labelledby="days-heading"><h2 id="days-heading">Les jours à venir</h2><div id="daily-cards" class="daily-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
+    <footer class="footer">
+      <div class="update-info" role="status" aria-live="polite"><span id="connection-status">Chargement de la météo…</span><span id="updated-at">Aucune donnée reçue</span></div>
+      <button id="refresh" type="button">Actualiser <span aria-hidden="true">↻</span></button>
+      <a class="attribution" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Données : Open-Meteo<br><span>Prévisions de modèles · CC BY 4.0</span></a>
+    </footer>
+    <noscript><p class="no-script">Active JavaScript dans Safari pour afficher les prévisions météo.</p></noscript>
+  </main>
+</body>
+</html>
