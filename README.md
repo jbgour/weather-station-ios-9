@@ -46,7 +46,7 @@ Deployment is manual: pushing a commit does not publish anything. The Freebox R�
 - The last valid response is saved in `localStorage`, with an in-memory fallback if storage is denied. After one hour without success, the interface flags stale data. Missing values appear as **—**, never zero. There is no service worker: a full page reload without a network connection is not guaranteed to work.
 - ES5 JavaScript; CSS without Grid, flexbox, CSS variables or remote fonts; local SVG icons. Reference layout: landscape at 1,024 × 768 CSS pixels, adapting to Safari's toolbars. Portrait and smaller screens may scroll to preserve readability.
 - On tablet-sized landscape viewports (at least 850 × 600 CSS pixels), the dashboard locks page scrolling and single-finger rubber-banding in Safari 9. Taps and pinch zoom remain available. Portrait, smaller viewports and the diagnostic page retain scrolling.
-- The compact header shows only Lyon. A slim footer keeps the last successful update, a small 22-pixel-high refresh control and source/license links on one row in landscape; connection and stale-data messages appear alongside the timestamp when needed.
+- The compact header shows only Lyon. In tablet landscape, a 45-pixel footer sits flush with the bottom of the viewport, with a full-sized 44-pixel refresh button, update information and source/license links on one row. There is no empty space below it. Connection and stale-data messages appear alongside the timestamp when needed.
 
 ## Run checks
 
