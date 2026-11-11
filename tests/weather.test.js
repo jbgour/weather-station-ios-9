@@ -12,12 +12,13 @@ function fixture(now) {
   var data = { utc_offset_seconds: W.parisOffset(now),
     current: { time: base, temperature_2m: 12.4, apparent_temperature: 10.1, weather_code: 3, is_day: 1, wind_speed_10m: 9, wind_direction_10m: 225 },
     minutely_15: { time: [], precipitation: [] },
-    hourly: { time: [], temperature_2m: [], weather_code: [], is_day: [], precipitation_probability: [] },
+    hourly: { time: [], temperature_2m: [], weather_code: [], is_day: [], precipitation_probability: [], wind_speed_10m: [], wind_direction_10m: [] },
     daily: { time: [], weather_code: [], temperature_2m_max: [], temperature_2m_min: [], precipitation_probability_max: [] } };
   for (i = 0; i < 8; i += 1) { data.minutely_15.time.push(base + i * 900); data.minutely_15.precipitation.push(i / 10); }
   for (i = 0; i < 96; i += 1) {
     data.hourly.time.push(hours + i * 3600); data.hourly.temperature_2m.push(10 + i % 10);
     data.hourly.weather_code.push(3); data.hourly.is_day.push(1); data.hourly.precipitation_probability.push(i);
+    data.hourly.wind_speed_10m.push(8 + i); data.hourly.wind_direction_10m.push(i * 45 % 360);
   }
   for (i = 0; i < 4; i += 1) {
     data.daily.time.push(day + i * 86400 - data.utc_offset_seconds); data.daily.weather_code.push(3);
@@ -82,6 +83,24 @@ test("Freshness and absent values", function () {
   equal(W.amount(null), "—", "missing amount"); equal(W.amount(0), "0", "dry"); equal(W.amount(0.04), "< 0,1", "trace");
   equal(W.wind(null, 0), "—", "missing wind"); equal(W.wind(0, null), "0 km/h", "calm");
   equal(W.weather(null, 1).icon, "unknown", "missing weather is not sun");
+});
+test("Wind arrows show flow, and hourly wind follows the selected sample", function () {
+  equal(W.windRotation(8, 0), 180, "northerly wind blows down");
+  equal(W.windRotation(8, 90), 270, "easterly wind blows left");
+  equal(W.windRotation(8, 180), 0, "southerly wind blows up");
+  equal(W.windRotation(8, 270), 90, "westerly wind blows right");
+  equal(W.windRotation(8, 360), 180, "360 is north");
+  equal(W.windRotation(0, 180), null, "no direction for calm wind");
+  equal(W.windRotation(null, 180), null, "missing speed");
+  equal(W.windRotation(8, null), null, "missing direction");
+  var now = epoch(2026, 11, 11, 10, 7), data = fixture(now), slots = W.hourSlots(data, now);
+  equal(slots[0].windSpeed, 9, "next hourly speed");
+  equal(slots[1].windDirection, 135, "two-hour direction");
+  delete data.hourly.wind_speed_10m;
+  delete data.hourly.wind_direction_10m;
+  slots = W.hourSlots(data, now);
+  equal(slots[0].windSpeed, null, "old cache without wind remains readable");
+  equal(slots[0].windDirection, null, "old cache does not invent direction");
 });
 test("Reject malformed responses; allow missing individual values", function () {
   var data = fixture(epoch(2026, 11, 11, 10));

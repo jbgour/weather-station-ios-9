@@ -8,7 +8,7 @@
   var API_URL = "https://api.open-meteo.com/v1/forecast?latitude=45.75&longitude=4.85" +
     "&current=temperature_2m,apparent_temperature,weather_code,is_day,wind_speed_10m,wind_direction_10m" +
     "&minutely_15=precipitation&forecast_minutely_15=8" +
-    "&hourly=temperature_2m,weather_code,is_day,precipitation_probability" +
+    "&hourly=temperature_2m,weather_code,is_day,precipitation_probability,wind_speed_10m,wind_direction_10m" +
     "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
     "&forecast_days=4&timezone=Europe%2FParis&timeformat=unixtime" +
     "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm";
@@ -57,6 +57,11 @@
     if (!number(speed) || speed < 0) { return "—"; }
     var labels = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
     return Math.round(speed) + " km/h" + (number(direction) ? " · " + labels[((Math.round(direction / 45) % 8) + 8) % 8] : "");
+  }
+  function windRotation(speed, direction) {
+    if (!number(speed) || Math.round(speed) <= 0 || !number(direction) || direction < 0 || direction > 360) { return null; }
+    /* Meteorological direction is the origin. Our upward arrow shows flow. */
+    return (direction + 180) % 360;
   }
   function weather(code, isDay) {
     if (!number(code)) { return { icon: "unknown", label: "Conditions indisponibles" }; }
@@ -110,6 +115,7 @@
       index = indexAt(data.hourly, timestamp);
       slots.push({ time: timestamp, temperature: at(data.hourly, "temperature_2m", index),
         probability: at(data.hourly, "precipitation_probability", index),
+        windSpeed: at(data.hourly, "wind_speed_10m", index), windDirection: at(data.hourly, "wind_direction_10m", index),
         condition: weather(at(data.hourly, "weather_code", index), at(data.hourly, "is_day", index)) });
     }
     return slots;
@@ -207,6 +213,6 @@
   }
   root.LyonWeather = { API_URL: API_URL, CACHE_KEY: CACHE_KEY, number: number, time: time, parisOffset: parisOffset,
     calendarDay: calendarDay, updatedLabel: updatedLabel, temperature: temperature, probability: probability,
-    amount: amount, wind: wind, weather: weather, validData: validData, rainSlots: rainSlots,
+    amount: amount, wind: wind, windRotation: windRotation, weather: weather, validData: validData, rainSlots: rainSlots,
     hourSlots: hourSlots, daySlots: daySlots, isStale: isStale, createClient: createClient };
 }(typeof window !== "undefined" ? window : this));

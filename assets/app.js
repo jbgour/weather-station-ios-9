@@ -15,6 +15,17 @@
   function chance(value, daily) {
     return '<span class="probability" aria-label="' + (daily ? 'Probabilité horaire maximale de pluie : ' : 'Probabilité de pluie : ') + escape(W.probability(value)) + '"><img class="drop" src="assets/drop.svg" alt="">' + W.probability(value) + (daily ? ' max.' : '') + '</span>';
   }
+  function windReading(speed, direction) {
+    var available = W.number(speed) && speed >= 0;
+    var rotation = W.windRotation(speed, direction);
+    var label = available ? "Vent : " + Math.round(speed) + " km/h" : "Vent indisponible";
+    if (available && Math.round(speed) === 0) { label = "Vent calme · 0 km/h"; }
+    else if (rotation !== null) { label += " · venant du " + W.wind(speed, direction).split(" · ")[1]; }
+    else if (available) { label += " · direction indisponible"; }
+    return '<span class="wind-reading" role="img" aria-label="' + escape(label) + '" title="' + escape(label) + '">' +
+      (rotation === null ? '' : '<img class="wind-arrow" src="assets/wind.svg" alt="" aria-hidden="true" style="-webkit-transform:rotate(' + rotation + 'deg);transform:rotate(' + rotation + 'deg)">') +
+      (available ? Math.round(speed) + '<span class="wind-unit"> km/h</span>' : '—') + '</span>';
+  }
   function renderRain(data, now) {
     var slots = W.rainSlots(data, now), html = "", i, slot, height;
     for (i = 0; i < slots.length; i += 1) {
@@ -34,7 +45,8 @@
       slot = slots[i];
       nextDay = W.calendarDay(slot.time) > W.calendarDay(now);
       html += '<div class="hour-card"><p class="hour-label">' + W.time(slot.time) + (nextDay ? ' · dem.' : '') + '</p>' +
-        icon(slot.condition, "hour-icon") + '<span class="hour-temperature">' + W.temperature(slot.temperature) + '</span>' + chance(slot.probability, false) + '</div>';
+        icon(slot.condition, "hour-icon") + '<span class="hour-temperature">' + W.temperature(slot.temperature) + '</span>' +
+        '<div class="hour-details">' + chance(slot.probability, false) + windReading(slot.windSpeed, slot.windDirection) + '</div></div>';
     }
     element("hourly-cards").innerHTML = html;
   }
@@ -62,7 +74,7 @@
       text("current-condition", condition.label);
       element("current-icon").src = "assets/" + condition.icon + ".svg";
       text("current-feels", W.temperature(current.apparent_temperature));
-      text("current-wind", W.wind(current.wind_speed_10m, current.wind_direction_10m));
+      element("current-wind").innerHTML = windReading(current.wind_speed_10m, current.wind_direction_10m);
       renderRain(state.data, seconds);
       renderHours(state.data, seconds);
       renderDays(state.data, seconds);

@@ -33,6 +33,9 @@ test("Dashboard renders real values, rain intervals and all cards", function () 
   equal(h.ids["current-feels"].textContent, "—", "missing felt temperature");
   assert(h.ids["rain-slots"].innerHTML.indexOf('rain-chart missing') >= 0, "missing rain visible");
   equal((h.ids["hourly-cards"].innerHTML.match(/class="hour-card"/g) || []).length, 6, "six hourly cards");
+  equal((h.ids["hourly-cards"].innerHTML.match(/class="wind-arrow"/g) || []).length, 6, "six hourly wind arrows");
+  assert(h.ids["current-wind"].innerHTML.indexOf("venant du SO") >= 0, "accessible wind origin");
+  assert(h.ids["current-wind"].innerHTML.indexOf("rotate(45deg)") >= 0, "current wind blows northeast");
   equal((h.ids["daily-cards"].innerHTML.match(/class="day-card"/g) || []).length, 3, "three daily cards");
   assert(h.ids["updated-at"].textContent.indexOf("heure de Paris") >= 0, "timestamp explicit");
   equal(h.ids.refresh.disabled, false, "button restored");
