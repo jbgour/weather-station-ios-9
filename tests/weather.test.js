@@ -64,7 +64,7 @@ test("Missing, negative and old rainfall do not become zero", function () {
 });
 test("Hourly forecasts use exact sample times across midnight", function () {
   var now = epoch(2026, 11, 11, 22, 45), slots = W.hourSlots(fixture(now), now);
-  equal(slots.length, 6, "six cards");
+  equal(slots.length, 7, "seven cards");
   equal(W.time(slots[0].time), "00:00", "next full hour in Paris");
   equal(slots[1].time - slots[0].time, 7200, "two-hour spacing");
   equal(slots[0].probability, 1, "sample probability, no aggregation");

@@ -63,8 +63,7 @@
     for (i = 0; i < slots.length; i += 1) {
       slot = slots[i];
       nextDay = W.calendarDay(slot.time) > W.calendarDay(now);
-      html += '<div class="hour-card" role="button" tabindex="0" data-day="' + Math.round((W.calendarDay(slot.time) - W.calendarDay(now)) / 86400) +
-        '" data-time="' + slot.time + '"><p class="hour-label">' + W.time(slot.time) + (nextDay ? ' · dem.' : '') + '</p>' +
+      html += '<div class="hour-card"><p class="hour-label">' + W.time(slot.time) + (nextDay ? ' · dem.' : '') + '</p>' +
         icon(slot.condition, "hour-icon") + '<span class="hour-temperature">' + W.temperature(slot.temperature) + '</span>' +
         '<div class="hour-details">' + chance(slot.probability, false) + windReading(slot.windSpeed, slot.windDirection) + '</div></div>';
     }
@@ -84,7 +83,7 @@
 
   /* Detail sheet: an in-page overlay (no navigation, so it also works in home-screen mode)
      showing either the 10-day list or one day's detail. */
-  var sheet = { open: false, view: "list", offset: 0, fromList: false, highlight: null, day: null, now: 0 };
+  var sheet = { open: false, view: "list", offset: 0, fromList: false, day: null, now: 0 };
   var latest = null;
   function setClass(id, value) { element(id).className = value; }
   function stat(label, value, sub) {
@@ -138,7 +137,7 @@
     box.innerHTML = curveSvg(day, sheet.now, box.offsetWidth > 0 ? box.offsetWidth : 900, box.offsetHeight > 40 ? box.offsetHeight : 150);
   }
   function renderDetail(data, now) {
-    var day = W.dayDetail(data, now, sheet.offset), html, i, h, slot, slots = {}, sun, uv, past, selected, classes;
+    var day = W.dayDetail(data, now, sheet.offset), html, i, h, slot, slots = {}, sun, uv, past, classes;
     sheet.day = day;
     sheet.now = now;
     if (!day) {
@@ -166,8 +165,7 @@
     for (h = 0; h < 24; h += 3) {
       slot = slots[h];
       past = slot && day.offset === 0 && slot.end <= now;
-      selected = slot && sheet.highlight !== null && sheet.highlight >= slot.time && sheet.highlight < slot.end;
-      classes = "detail-slot" + (past ? " past" : "") + (selected ? " selected" : "");
+      classes = "detail-slot" + (past ? " past" : "");
       html += '<div class="' + classes + '"><p class="hour-label">' + (h < 10 ? "0" : "") + h + ' h</p>' +
         (slot ? icon(slot.condition, "detail-slot-icon") + '<span class="detail-slot-rain">' + chance(slot.probability, false) +
           '<span class="detail-rain" aria-label="' + escape(W.amount(slot.rain)) + ' millimètres sur 3 heures">' + W.amount(slot.rain) + ' mm</span></span>' +
@@ -224,12 +222,11 @@
       renderDetail(latest.data, now);
     }
   }
-  function openSheet(view, offset, fromList, highlight) {
+  function openSheet(view, offset, fromList) {
     sheet.open = true;
     sheet.view = view;
     sheet.offset = offset;
     sheet.fromList = !!fromList;
-    sheet.highlight = typeof highlight === "number" ? highlight : null;
     renderSheet();
     if (element("sheet-body").scrollTop) { element("sheet-body").scrollTop = 0; }
     setClass("overlay", "overlay open");
@@ -325,10 +322,8 @@
       event.preventDefault();
     }
   }, false);
-  /* Taps on the dashboard open the sheet: a day card or the current panel shows that day,
-     an hourly card shows its day with the matching three-hour column highlighted. */
+  /* Taps on a day card or the current panel open that day's detail; hourly cards are display only. */
   delegate("daily-cards", function (offset) { openSheet("detail", offset, false); });
-  delegate("hourly-cards", function (offset, target) { openSheet("detail", offset, false, Number(target.getAttribute("data-time"))); });
   delegate("current-panel", function (offset) { openSheet("detail", offset, false); });
   element("more-days").addEventListener("click", function () { openSheet("list", 0, false); }, false);
   delegate("sheet-body", function (offset) { if (sheet.view === "list") { openSheet("detail", offset, true); } });

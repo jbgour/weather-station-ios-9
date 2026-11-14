@@ -32,8 +32,8 @@ test("Dashboard renders real values, rain intervals and all cards", function () 
   assert(h.ids["current-temperature"].innerHTML.indexOf("-3") === 0, "negative temperature");
   equal(h.ids["current-feels"].textContent, "—", "missing felt temperature");
   assert(h.ids["rain-slots"].innerHTML.indexOf('rain-chart missing') >= 0, "missing rain visible");
-  equal((h.ids["hourly-cards"].innerHTML.match(/class="hour-card"/g) || []).length, 6, "six hourly cards");
-  equal((h.ids["hourly-cards"].innerHTML.match(/class="wind-arrow"/g) || []).length, 6, "six hourly wind arrows");
+  equal((h.ids["hourly-cards"].innerHTML.match(/class="hour-card"/g) || []).length, 7, "seven hourly cards");
+  equal((h.ids["hourly-cards"].innerHTML.match(/class="wind-arrow"/g) || []).length, 7, "seven hourly wind arrows");
   assert(h.ids["current-wind"].innerHTML.indexOf("venant du SO") >= 0, "accessible wind origin");
   assert(h.ids["current-wind"].innerHTML.indexOf("rotate(45 12 12)") >= 0, "current wind blows northeast");
   equal((h.ids["daily-cards"].innerHTML.match(/class="day-card"/g) || []).length, 3, "three daily cards");
@@ -73,11 +73,12 @@ test("Day cards open an in-page detail; the 10-day list opens days with a back c
   h.ids["daily-cards"].click({ target: tapTarget(null) });
   equal(h.ids.overlay.className, "overlay", "taps between cards do nothing");
 });
-test("An hourly card opens its day with the matching three-hour column highlighted", function () {
-  var h = appHarness(), now = new Date().getTime() / 1000, data = fixture(now, 10), slot = W.hourSlots(data, now)[1];
-  h.requests[0].respond(200, data);
-  h.ids["hourly-cards"].click({ target: tapTarget(String(Math.round((W.calendarDay(slot.time) - W.calendarDay(now)) / 86400)), String(slot.time)) });
-  equal((h.ids["sheet-body"].innerHTML.match(/ selected"/g) || []).length, 1, "one highlighted column");
+test("Hourly cards are display only and never open the sheet", function () {
+  var h = appHarness(), now = new Date().getTime() / 1000;
+  h.requests[0].respond(200, fixture(now, 10));
+  equal(h.ids["hourly-cards"].click, undefined, "no tap handler on the hourly row");
+  equal(h.ids["hourly-cards"].innerHTML.indexOf("data-day") < 0 && h.ids["hourly-cards"].innerHTML.indexOf('role="button"') < 0, true, "no tappable markup");
+  equal(h.ids.overlay.className === "overlay open", false, "sheet stays closed");
 });
 test("Day detail shows unavailable values as dashes and keeps untrusted values out of markup", function () {
   var h = appHarness(), now = new Date().getTime() / 1000, data = fixture(now, 10);

@@ -148,7 +148,7 @@
   }
   function hourSlots(data, nowSeconds) {
     var slots = [], start = Math.ceil(nowSeconds / 3600) * 3600, i;
-    for (i = 0; i < 6; i += 1) { slots.push(hourSample(data, start + i * 7200)); }
+    for (i = 0; i < 7; i += 1) { slots.push(hourSample(data, start + i * 7200)); }
     return slots;
   }
   /* Rain over [start, end): hourly totals cover the preceding hour, so sum the samples ending
