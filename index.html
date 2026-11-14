@@ -10,9 +10,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="description" content="La météo, les prochaines pluies et les prévisions, d’un coup d’œil.">
   <title>Météo · iPad</title>
-  <link rel="stylesheet" href="assets/style.css?v=14">
-  <script defer src="assets/weather.js?v=13"></script>
-  <script defer src="assets/app.js?v=14"></script>
+  <link rel="stylesheet" href="assets/style.css?v=15">
+  <script defer src="assets/weather.js?v=14"></script>
+  <script defer src="assets/app.js?v=15"></script>
 </head>
 <body>
   <main id="dashboard" class="dashboard">
@@ -21,7 +21,7 @@
     </header>
     <div class="weather-stage"><div class="weather-content">
     <div class="overview">
-      <section class="current panel" aria-labelledby="current-heading">
+      <section id="current-panel" class="current panel" data-day="0" aria-labelledby="current-heading">
         <h2 id="current-heading">En ce moment</h2>
         <div class="current-main"><img id="current-icon" class="hero-icon" src="assets/unknown.svg" alt=""><span id="current-temperature" class="hero-temperature">—<span class="degree">°</span></span></div>
         <p id="current-condition" class="condition">En attente de la météo</p>
@@ -39,7 +39,7 @@
       </a>
     </div>
     <section class="hours" aria-labelledby="hours-heading"><h2 id="hours-heading">Les prochaines heures</h2><div id="hourly-cards" class="hourly-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
-    <section class="days" aria-labelledby="days-heading"><h2 id="days-heading">Les jours à venir</h2><div id="daily-cards" class="daily-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
+    <section class="days" aria-labelledby="days-heading"><h2 id="days-heading">Les jours à venir</h2><button id="more-days" class="more-days" type="button" aria-haspopup="dialog"><span class="more-days-pill">10 jours <span class="more-days-chevron" aria-hidden="true">›</span></span></button><div id="daily-cards" class="daily-cards"><p class="empty-message">Prévisions indisponibles pour le moment.</p></div></section>
     </div></div>
     <footer class="footer">
       <div class="update-info" role="status" aria-live="polite"><span id="connection-status">Chargement…</span><span id="updated-at">Aucune donnée reçue</span></div>
@@ -48,5 +48,15 @@
     </footer>
     <noscript><p class="no-script">Active JavaScript dans Safari pour afficher les prévisions météo.</p></noscript>
   </main>
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-top">
+        <div class="sheet-nav"><button id="sheet-back" class="sheet-back is-hidden" type="button"><span class="sheet-back-chevron" aria-hidden="true">‹</span>10 jours</button></div>
+        <div class="sheet-heading"><h2 id="sheet-title" class="sheet-title" tabindex="-1">Prévisions</h2><p id="sheet-subtitle" class="sheet-subtitle"></p></div>
+        <div class="sheet-actions"><button id="sheet-close" class="sheet-close" type="button">Fermer <span aria-hidden="true">✕</span></button></div>
+      </div>
+      <div id="sheet-body" class="sheet-body"></div>
+    </div>
+  </div>
 </body>
 </html>

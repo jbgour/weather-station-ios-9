@@ -14,8 +14,13 @@
     }
   }
   syncViewport();
-  window.addEventListener("resize", syncViewport, false);
-  window.addEventListener("orientationchange", syncViewport, false);
+  function relayout() {
+    syncViewport();
+    /* The temperature curve is drawn in pixels: redraw it for the new sheet size. */
+    if (sheet && sheet.open) { renderCurve(); }
+  }
+  window.addEventListener("resize", relayout, false);
+  window.addEventListener("orientationchange", relayout, false);
   function element(id) { return doc.getElementById(id); }
   function text(id, value) { element(id).textContent = value; }
   text("city-name", W.LOCATION.name);
@@ -58,7 +63,8 @@
     for (i = 0; i < slots.length; i += 1) {
       slot = slots[i];
       nextDay = W.calendarDay(slot.time) > W.calendarDay(now);
-      html += '<div class="hour-card"><p class="hour-label">' + W.time(slot.time) + (nextDay ? ' · dem.' : '') + '</p>' +
+      html += '<div class="hour-card" role="button" tabindex="0" data-day="' + Math.round((W.calendarDay(slot.time) - W.calendarDay(now)) / 86400) +
+        '" data-time="' + slot.time + '"><p class="hour-label">' + W.time(slot.time) + (nextDay ? ' · dem.' : '') + '</p>' +
         icon(slot.condition, "hour-icon") + '<span class="hour-temperature">' + W.temperature(slot.temperature) + '</span>' +
         '<div class="hour-details">' + chance(slot.probability, false) + windReading(slot.windSpeed, slot.windDirection) + '</div></div>';
     }
@@ -68,14 +74,202 @@
     var slots = W.daySlots(data, now), html = "", i, slot;
     for (i = 0; i < slots.length; i += 1) {
       slot = slots[i];
-      html += '<div class="day-card"><div class="day-content"><span class="day-identity">' + icon(slot.condition, "day-icon") + '<span class="day-name">' + slot.label + '</span></span>' +
+      html += '<div class="day-card" role="button" tabindex="0" data-day="' + slot.offset + '"><div class="day-content"><span class="day-identity">' + icon(slot.condition, "day-icon") + '<span class="day-name">' + slot.label + '</span></span>' +
         '<span class="day-temperatures"><span aria-label="Maximum ' + escape(W.temperature(slot.max)) + '">' + W.temperature(slot.max) + '</span>' +
         '<span class="day-min" aria-label="Minimum ' + escape(W.temperature(slot.min)) + '">' + W.temperature(slot.min) + '</span></span>' +
         '<span class="day-chance">' + chance(slot.probability, true) + '</span></div></div>';
     }
     element("daily-cards").innerHTML = html;
   }
+
+  /* Detail sheet: an in-page overlay (no navigation, so it also works in home-screen mode)
+     showing either the 10-day list or one day's detail. */
+  var sheet = { open: false, view: "list", offset: 0, fromList: false, highlight: null, day: null, now: 0 };
+  var latest = null;
+  function setClass(id, value) { element(id).className = value; }
+  function stat(label, value, sub) {
+    return '<div class="detail-stat"><span class="detail-label">' + label + '</span><strong class="detail-value">' + value + '</strong>' +
+      '<span class="detail-sub">' + sub + '</span></div>';
+  }
+  function curveSvg(day, now, width, height) {
+    var points = [], i, sample, x, y, min = null, max = null, html, line = "", area, top = 26, bottom = 12, slot, nowHour;
+    for (i = 0; i < day.curve.length; i += 1) {
+      sample = day.curve[i];
+      if (sample.temperature === null) { continue; }
+      if (min === null || sample.temperature < min) { min = sample.temperature; }
+      if (max === null || sample.temperature > max) { max = sample.temperature; }
+    }
+    if (min === null) { return '<p class="empty-message">Courbe des températures indisponible.</p>'; }
+    /* A minimum 8° span keeps small daily variations from looking dramatic. */
+    if (max - min < 8) { min -= (8 - (max - min)) / 2; max = min + 8; }
+    /* Hour h sits above the centre of its three-hour column: (h + 1.5) / 24 of the width. */
+    function px(hour) { return Math.round((hour + 1.5) / 24 * width * 10) / 10; }
+    function py(value) { return Math.round((top + (max - value) / (max - min) * (height - top - bottom)) * 10) / 10; }
+    for (i = 0; i < day.curve.length; i += 1) {
+      sample = day.curve[i];
+      if (sample.temperature !== null) { points.push([px(sample.hour), py(sample.temperature)]); }
+    }
+    for (i = 0; i < points.length; i += 1) { line += (i ? " " : "") + points[i][0] + "," + points[i][1]; }
+    area = "M" + points[0][0] + "," + height + " L" + line.replace(/ /g, " L") + " L" + points[points.length - 1][0] + "," + height + " Z";
+    html = '<svg class="curve-svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" aria-hidden="true" focusable="false">' +
+      '<defs><linearGradient id="curve-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5cf86" stop-opacity=".26"/><stop offset="1" stop-color="#e5cf86" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + area + '" fill="url(#curve-fill)"/>';
+    if (day.offset === 0) {
+      nowHour = (now - W.calendarDay(now) + W.parisOffset(now)) / 3600;
+      if (nowHour >= 0 && nowHour < 24) {
+        x = px(nowHour);
+        html += '<line x1="' + x + '" y1="' + (top - 8) + '" x2="' + x + '" y2="' + height + '" stroke="#b8d9bd" stroke-width="1.5" stroke-dasharray="3 4"/>';
+      }
+    }
+    html += '<polyline points="' + line + '" fill="none" stroke="#e5cf86" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    for (i = 0; i < day.slots.length; i += 1) {
+      slot = day.slots[i];
+      if (slot.temperature === null) { continue; }
+      x = px(slot.hour); y = py(slot.temperature);
+      html += '<circle cx="' + x + '" cy="' + y + '" r="4" fill="#e5cf86" stroke="#10191d" stroke-width="2"/>' +
+        '<text x="' + x + '" y="' + (y - 10) + '" text-anchor="middle" class="curve-label">' + escape(W.temperature(slot.temperature)) + '</text>';
+    }
+    return html + '</svg>';
+  }
+  function renderCurve() {
+    var box = element("detail-curve"), day = sheet.day;
+    if (!box || !day) { return; }
+    /* Draw in real pixels so text and dots are not stretched; fall back when layout is unknown. */
+    box.innerHTML = curveSvg(day, sheet.now, box.offsetWidth > 0 ? box.offsetWidth : 900, box.offsetHeight > 40 ? box.offsetHeight : 150);
+  }
+  function renderDetail(data, now) {
+    var day = W.dayDetail(data, now, sheet.offset), html, i, h, slot, slots = {}, sun, uv, past, selected, classes;
+    sheet.day = day;
+    sheet.now = now;
+    if (!day) {
+      text("sheet-title", "Détail indisponible");
+      text("sheet-subtitle", "");
+      element("sheet-body").innerHTML = '<p class="empty-message sheet-empty">Les prévisions de ce jour ne sont pas disponibles.</p>';
+      return;
+    }
+    text("sheet-title", day.title);
+    text("sheet-subtitle", day.offset <= 1 ? day.label : "Prévisions du jour");
+    uv = W.uv(day.uv);
+    sun = '<span class="detail-sun">' + W.time(day.sunrise) + '<span class="detail-dash">–</span>' + W.time(day.sunset) + '</span>';
+    html = '<div class="detail"><div class="detail-summary">' +
+      '<div class="detail-hero">' + icon(day.condition, "detail-icon") + '<span class="detail-temps"><span class="detail-max" aria-label="Maximum ' + escape(W.temperature(day.max)) + '">' + W.temperature(day.max) + '</span>' +
+      '<span class="detail-min" aria-label="Minimum ' + escape(W.temperature(day.min)) + '">' + W.temperature(day.min) + '</span>' +
+      '<span class="detail-condition">' + escape(day.condition.label) + '</span></span></div>' +
+      stat("Pluie", chance(day.probability, true), (day.precipitation === null ? "Cumul indisponible" : escape(W.amount(day.precipitation)) + " mm au total")) +
+      stat("Vent max.", windReading(day.windMax, day.windDirection), "Rafales " + (day.gustMax === null ? "—" : Math.round(day.gustMax) + " km/h")) +
+      stat("Indice UV max.", escape(uv.value), escape(uv.label)) +
+      stat("Soleil", sun, day.daylight === null ? "Durée du jour indisponible" : escape(W.duration(day.daylight)) + " de jour") +
+      '</div><div class="detail-timeline"><div class="section-top"><h2>Au fil de la journée</h2><span class="unit-label">pluie en mm sur 3 h</span></div>' +
+      '<div id="detail-curve" class="detail-curve"></div><div class="detail-slots">';
+    for (i = 0; i < day.slots.length; i += 1) { slots[day.slots[i].hour] = day.slots[i]; }
+    /* Always eight columns (00h to 21h) so the curve stays aligned, even on a partial day. */
+    for (h = 0; h < 24; h += 3) {
+      slot = slots[h];
+      past = slot && day.offset === 0 && slot.end <= now;
+      selected = slot && sheet.highlight !== null && sheet.highlight >= slot.time && sheet.highlight < slot.end;
+      classes = "detail-slot" + (past ? " past" : "") + (selected ? " selected" : "");
+      html += '<div class="' + classes + '"><p class="hour-label">' + (h < 10 ? "0" : "") + h + ' h</p>' +
+        (slot ? icon(slot.condition, "detail-slot-icon") + '<span class="detail-slot-rain">' + chance(slot.probability, false) +
+          '<span class="detail-rain" aria-label="' + escape(W.amount(slot.rain)) + ' millimètres sur 3 heures">' + W.amount(slot.rain) + ' mm</span></span>' +
+          windReading(slot.windSpeed, slot.windDirection)
+          : '<span class="detail-missing">—</span>') + '</div>';
+    }
+    element("sheet-body").innerHTML = html + '</div></div></div>';
+    renderCurve();
+  }
+  function renderList(data, now) {
+    var days = W.dayList(data, now), html = "", i, day, low = null, high = null, left, width;
+    text("sheet-title", days.length + (days.length > 1 ? " jours" : " jour"));
+    text("sheet-subtitle", W.LOCATION.name + " · touche un jour pour le détail");
+    if (!days.length) {
+      element("sheet-body").innerHTML = '<p class="empty-message sheet-empty">Prévisions indisponibles pour le moment.</p>';
+      return;
+    }
+    for (i = 0; i < days.length; i += 1) {
+      if (days[i].min !== null && (low === null || days[i].min < low)) { low = days[i].min; }
+      if (days[i].max !== null && (high === null || days[i].max > high)) { high = days[i].max; }
+    }
+    for (i = 0; i < days.length; i += 1) {
+      day = days[i];
+      left = 0; width = 0;
+      /* Each bar spans the day's min to max on a shared scale across the listed days. */
+      if (day.min !== null && day.max !== null && high > low) {
+        left = Math.round((day.min - low) / (high - low) * 1000) / 10;
+        width = Math.max(4, Math.round((day.max - day.min) / (high - low) * 1000) / 10);
+        left = Math.min(left, 100 - width);
+      }
+      html += '<div class="list-row" role="button" tabindex="0" data-day="' + day.offset + '">' +
+        '<span class="list-cell list-day"><strong>' + escape(day.label) + '</strong><span class="list-date">' + escape(day.date) + '</span></span>' +
+        '<span class="list-cell list-condition">' + icon(day.condition, "list-icon") + '<span class="list-label">' + escape(day.condition.label) + '</span></span>' +
+        '<span class="list-cell list-rain">' + chance(day.probability, false) + '<span class="list-amount">' + (day.precipitation === null ? "—" : escape(W.amount(day.precipitation)) + " mm") + '</span></span>' +
+        '<span class="list-cell list-temps"><span class="list-min">' + W.temperature(day.min) + '</span><span class="range-track" aria-hidden="true">' +
+        (width ? '<span class="range-bar" style="left:' + left + '%;width:' + width + '%"></span>' : '') + '</span><span class="list-max">' + W.temperature(day.max) + '</span></span>' +
+        '<span class="list-cell list-wind">' + windReading(day.windMax, day.windDirection) + '</span>' +
+        '<span class="list-cell list-chevron" aria-hidden="true">›</span></div>';
+    }
+    element("sheet-body").innerHTML = '<div class="list-panel"><div class="day-list">' + html + '</div></div>';
+  }
+  function renderSheet() {
+    if (!sheet.open) { return; }
+    var now = new Date().getTime() / 1000;
+    setClass("sheet", "sheet sheet-" + sheet.view);
+    setClass("sheet-back", "sheet-back" + (sheet.view === "detail" && sheet.fromList ? "" : " is-hidden"));
+    if (!latest || !latest.data) {
+      text("sheet-title", "Prévisions");
+      text("sheet-subtitle", "");
+      element("sheet-body").innerHTML = '<p class="empty-message sheet-empty">Les prévisions arrivent…</p>';
+    } else if (sheet.view === "list") {
+      renderList(latest.data, now);
+    } else {
+      renderDetail(latest.data, now);
+    }
+  }
+  function openSheet(view, offset, fromList, highlight) {
+    sheet.open = true;
+    sheet.view = view;
+    sheet.offset = offset;
+    sheet.fromList = !!fromList;
+    sheet.highlight = typeof highlight === "number" ? highlight : null;
+    renderSheet();
+    if (element("sheet-body").scrollTop) { element("sheet-body").scrollTop = 0; }
+    setClass("overlay", "overlay open");
+    element("overlay").setAttribute("aria-hidden", "false");
+    element("dashboard").setAttribute("aria-hidden", "true");
+    /* Move VoiceOver to the title; focusing a button would leave a focus ring on touch screens. */
+    if (element("sheet-title").focus) { element("sheet-title").focus(); }
+  }
+  function closeSheet() {
+    if (!sheet.open) { return; }
+    sheet.open = false;
+    sheet.day = null;
+    setClass("overlay", "overlay");
+    element("overlay").setAttribute("aria-hidden", "true");
+    element("dashboard").setAttribute("aria-hidden", "false");
+  }
+  /* Find the nearest element carrying a valid data-day offset, from the tapped node up to the container. */
+  function dayTarget(event, container) {
+    var node = event && event.target, value;
+    while (node) {
+      value = node.getAttribute ? node.getAttribute("data-day") : null;
+      if (value !== null && value !== undefined && /^[0-9]$/.test(value)) { return node; }
+      if (node === container) { break; }
+      node = node.parentNode;
+    }
+    return null;
+  }
+  function delegate(id, handler) {
+    function run(event) {
+      var target = dayTarget(event, element(id));
+      if (target) { handler(Number(target.getAttribute("data-day")), target); }
+    }
+    element(id).addEventListener("click", run, false);
+    element(id).addEventListener("keydown", function (event) {
+      if (event.keyCode === 13 || event.keyCode === 32) { if (event.preventDefault) { event.preventDefault(); } run(event); }
+    }, false);
+  }
+
   function render(state) {
+    latest = state;
     var now = new Date().getTime(), seconds = now / 1000, current, condition;
     var stale = state.data && W.isStale(state.receivedAt, now);
     doc.body.className = (stale ? "stale " : "") + (state.error ? "failed" : "");
@@ -106,6 +300,7 @@
     } else {
       text("connection-status", "");
     }
+    renderSheet();
   }
   try { storage = window.localStorage; } catch (ignore) { /* Safari private mode. */ }
   client = W.createClient({ storage: storage, now: function () { return new Date().getTime(); },
@@ -130,6 +325,29 @@
       event.preventDefault();
     }
   }, false);
+  /* Taps on the dashboard open the sheet: a day card or the current panel shows that day,
+     an hourly card shows its day with the matching three-hour column highlighted. */
+  delegate("daily-cards", function (offset) { openSheet("detail", offset, false); });
+  delegate("hourly-cards", function (offset, target) { openSheet("detail", offset, false, Number(target.getAttribute("data-time"))); });
+  delegate("current-panel", function (offset) { openSheet("detail", offset, false); });
+  element("more-days").addEventListener("click", function () { openSheet("list", 0, false); }, false);
+  delegate("sheet-body", function (offset) { if (sheet.view === "list") { openSheet("detail", offset, true); } });
+  element("sheet-back").addEventListener("click", function () { openSheet("list", 0, false); }, false);
+  element("sheet-close").addEventListener("click", closeSheet, false);
+  element("overlay").addEventListener("click", function (event) {
+    if (event && event.target === element("overlay")) { closeSheet(); }
+  }, false);
+  doc.addEventListener("keydown", function (event) { if (event && event.keyCode === 27) { closeSheet(); } }, false);
+  /* The sheet lives outside #dashboard: block page rubber-banding unless its body really scrolls. */
+  element("overlay").addEventListener("touchmove", function (event) {
+    var body = element("sheet-body");
+    if (event.touches && event.touches.length === 1 && window.matchMedia(FULL_HEIGHT_LAYOUT).matches &&
+        window.innerWidth >= doc.documentElement.clientWidth && !(body.scrollHeight > body.clientHeight + 1)) {
+      event.preventDefault();
+    }
+  }, false);
+  /* Lets :active styles show feedback on iOS taps. */
+  doc.addEventListener("touchstart", function () {}, false);
   function resume() { if (!doc.hidden) { syncViewport(); client.tick(); } }
   doc.addEventListener("visibilitychange", resume, false);
   window.addEventListener("pageshow", resume, false);

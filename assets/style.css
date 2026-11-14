@@ -87,6 +87,94 @@ button:disabled { opacity: .65; cursor: default; }
 button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 .empty-message { color: #a6b6b9; font-size: 14px; line-height: 22px; padding: 24px 0; margin: 0; }
 .no-script { color: #ebc58d; }
+/* Tappable dashboard areas open the detail sheet; :active gives iOS tap feedback. */
+.current, .day-card, .hour-card { cursor: pointer; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
+.current:active, .day-card:active { background: #1f2e33; border-color: #45575c; }
+.hour-card:active { background: #1b282c; }
+.days { position: relative; }
+/* Small pill in the "Les jours à venir" header; the transparent button keeps a 44-pixel target. */
+.more-days { position: absolute; top: -15px; right: -10px; height: 44px; min-height: 44px; padding: 0 10px 0 28px; border: 0; background: transparent; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
+.more-days .more-days-pill { display: inline-block; margin: 0; padding: 0 9px 0 11px; border: 1px solid #45575c; border-radius: 12px; background: #1a272b; color: #d9e4e1; font-size: 12px; line-height: 22px; font-weight: 600; vertical-align: middle; }
+.more-days .more-days-chevron { margin: 0 0 0 5px; font-size: 16px; vertical-align: -1px; }
+.more-days:active .more-days-pill { background: #2a3c42; border-color: #6b8085; }
+/* Detail sheet over the dashboard. Visibility is delayed on close so the fade can finish. */
+.overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 20; visibility: hidden; opacity: 0; background: rgba(5, 9, 11, .74); -webkit-transition: opacity .25s ease, visibility 0s linear .25s; transition: opacity .25s ease, visibility 0s linear .25s; }
+.overlay.open { visibility: visible; opacity: 1; -webkit-transition: opacity .25s ease; transition: opacity .25s ease; }
+.sheet { position: absolute; top: 10px; bottom: 10px; left: 0; right: 0; width: calc(100% - 36px); max-width: 1160px; margin: 0 auto; overflow: hidden; background: #10191d; border: 1px solid #2f3f44; border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, .55); -webkit-transform: translate3d(0, 36px, 0); transform: translate3d(0, 36px, 0); -webkit-transition: -webkit-transform .3s cubic-bezier(.2, .8, .2, 1); transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.overlay.open .sheet { -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); }
+.sheet-top { display: table; width: 100%; height: 64px; table-layout: fixed; border-spacing: 0; border-bottom: 1px solid #223136; }
+.sheet-nav, .sheet-heading, .sheet-actions { display: table-cell; vertical-align: middle; }
+.sheet-nav, .sheet-actions { width: 150px; padding: 0 12px; }
+.sheet-actions { text-align: right; }
+.sheet-heading { text-align: center; }
+.sheet-title { overflow: hidden; color: #edf1ef; font-size: 22px; line-height: 26px; font-weight: 500; letter-spacing: -.3px; text-transform: none; white-space: nowrap; text-overflow: ellipsis; }
+.sheet-title:focus { outline: none; }
+.sheet-subtitle { margin: 2px 0 0; overflow: hidden; color: #a6b6b9; font-size: 12px; line-height: 15px; white-space: nowrap; text-overflow: ellipsis; }
+.sheet-back .sheet-back-chevron { margin: 0 8px 0 0; font-size: 22px; line-height: 18px; vertical-align: -2px; }
+.sheet-back.is-hidden { visibility: hidden; }
+.sheet-close, .sheet-back { min-width: 44px; }
+.sheet-close:active, .sheet-back:active { background: #2a3c42; }
+.sheet-body { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; padding: 16px 20px; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sheet-empty { text-align: center; }
+/* Day detail: summary boxes, then the temperature curve above aligned three-hour columns. */
+.detail-summary:after { content: ""; display: table; clear: both; }
+.detail-hero, .detail-stat { float: left; height: 116px; padding: 14px; overflow: hidden; background: #192529; border: 1px solid #2a383d; border-radius: 10px; white-space: nowrap; }
+.detail-hero { width: 25%; }
+.detail-stat { width: calc(18.75% - 10px); margin-left: 10px; }
+.detail-icon { width: 64px; height: 64px; margin-right: 14px; vertical-align: middle; }
+.detail-temps { display: inline-block; vertical-align: middle; }
+.detail-max { font-size: 44px; line-height: 48px; font-weight: 300; letter-spacing: -2px; }
+.detail-min { margin-left: 12px; color: #a6b6b9; font-size: 28px; font-weight: 300; }
+.detail-condition { display: block; color: #e0e8e5; font-size: 16px; line-height: 20px; }
+.detail-value { display: block; overflow: hidden; color: #edf1ef; font-size: 22px; line-height: 30px; font-weight: 500; text-overflow: ellipsis; }
+.detail-value .probability { color: #a6ced8; font-size: 22px; line-height: 30px; font-weight: 500; }
+.detail-value .drop { width: 12px; height: 16px; margin-right: 6px; vertical-align: 0; }
+.detail-value .wind-reading { font-size: 22px; line-height: 30px; }
+.detail-value .wind-unit { font-size: 13px; }
+.detail-sub { display: block; margin-top: 4px; overflow: hidden; color: #a6b6b9; font-size: 12px; line-height: 16px; text-overflow: ellipsis; }
+.detail-dash { padding: 0 5px; color: #6f8286; font-weight: 400; }
+.detail-value .detail-sun { font-size: 20px; letter-spacing: -.3px; }
+.detail-sun .detail-dash { padding: 0 4px; }
+.detail-timeline { position: relative; margin-top: 14px; padding-top: 14px; background: #152024; border: 1px solid #2a383d; border-radius: 10px; }
+.detail-timeline .section-top { width: calc(100% - 40px); margin: 0 20px; }
+.detail-curve { position: relative; height: 150px; overflow: hidden; }
+.curve-svg { display: block; }
+.curve-label { fill: #edf1ef; font-size: 15px; font-weight: 500; }
+.detail-slots { display: table; width: 100%; table-layout: fixed; border-spacing: 0; }
+.detail-slot { display: table-cell; padding: 10px 4px 12px; text-align: center; vertical-align: middle; border-right: 1px solid #2b383c; }
+.detail-slot:last-child { border-right: 0; }
+.detail-slot.past { opacity: .45; }
+.detail-slot.selected { background: #1c2b30; box-shadow: inset 0 3px 0 #b8d9bd; }
+.detail-slot-icon { display: block; width: 36px; height: 36px; margin: 6px auto; }
+.detail-slot-rain { display: block; line-height: 18px; }
+.detail-slot .probability { display: block; font-size: 13px; line-height: 18px; }
+.detail-rain { display: block; color: #c2e1e7; font-size: 13px; line-height: 18px; }
+.detail-slot .wind-reading { margin-top: 6px; font-size: 14px; }
+.detail-missing { display: block; padding: 30px 0; color: #a6b6b9; }
+/* Ten-day list: one tappable row per day, with a shared temperature range scale. */
+.list-panel { overflow: hidden; background: #152024; border: 1px solid #2a383d; border-radius: 10px; }
+.day-list { display: table; width: 100%; table-layout: fixed; border-spacing: 0; }
+.list-row { display: table-row; cursor: pointer; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
+.list-row:active .list-cell { background: #1f2e33; }
+.list-cell { display: table-cell; height: 56px; padding: 0 12px; vertical-align: middle; white-space: nowrap; border-top: 1px solid #2b383c; }
+.list-row:first-child .list-cell { border-top: 0; }
+.list-day { width: 16%; padding-left: 20px; }
+.list-day strong { display: block; font-size: 17px; line-height: 21px; font-weight: 500; }
+.list-date { display: block; color: #a6b6b9; font-size: 12px; line-height: 16px; }
+.list-condition { width: 21%; overflow: hidden; text-overflow: ellipsis; }
+.list-icon { width: 36px; height: 36px; margin-right: 10px; vertical-align: middle; }
+.list-label { color: #d9e4e1; font-size: 15px; vertical-align: middle; }
+.list-rain { width: 13%; }
+.list-rain .probability { display: block; font-size: 14px; line-height: 18px; }
+.list-amount { display: block; padding-left: 13px; color: #a6b6b9; font-size: 12px; line-height: 16px; }
+.list-temps { width: 36%; }
+.list-min, .list-max { display: inline-block; width: 40px; font-size: 20px; vertical-align: middle; }
+.list-min { color: #a6b6b9; text-align: right; }
+.range-track { display: inline-block; position: relative; width: calc(100% - 104px); height: 6px; margin: 0 12px; background: #22343a; border-radius: 3px; vertical-align: middle; }
+.range-bar { position: absolute; top: 0; bottom: 0; background: #e5cf86; background: -webkit-linear-gradient(left, #8bbdc9, #e5cf86); background: linear-gradient(to right, #8bbdc9, #e5cf86); border-radius: 3px; }
+.list-wind { width: 11%; }
+.list-wind .wind-reading { font-size: 15px; }
+.list-chevron { width: 40px; padding: 0 16px 0 0; color: #6f8286; font-size: 26px; text-align: right; }
 .diagnostic { max-width: 760px; margin: 40px auto; padding: 24px; }
 .diagnostic h1 { font-size: 30px; margin-bottom: 25px; }
 .diagnostic p { line-height: 1.7; }
@@ -115,6 +203,17 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .hour-temperature { font-size: calc(5rem - 3px); line-height: 5rem; }
   .daily-cards { height: calc(20rem - 68px); }
   .dashboard-page .footer { position: fixed; left: 50%; bottom: 0; width: calc(100% - 56px); max-width: 1144px; margin: 0; background: #10191d; -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+  /* The sheet fits the viewport too: summary row, then the timeline fills the remaining height. */
+  .sheet-body { overflow: hidden; }
+  .detail-hero, .detail-stat { height: calc(18rem - 10px); padding-top: calc(9rem - 42px); }
+  .detail-hero { padding-top: calc(9rem - 38px); }
+  .detail-timeline { position: absolute; top: calc(18rem + 20px); bottom: 16px; left: 20px; right: 20px; margin: 0; }
+  .detail-curve { position: absolute; top: 36px; bottom: calc(20rem + 40px); left: 0; right: 0; height: auto; }
+  .detail-slots { position: absolute; bottom: 0; left: 0; height: calc(20rem + 40px); }
+  .detail-slot-icon { width: calc(5rem + 8px); height: calc(5rem + 8px); margin: 1rem auto; }
+  .list-panel { position: absolute; top: 16px; bottom: 16px; left: 20px; right: 20px; }
+  .day-list { height: 100%; }
+  .list-cell { height: auto; }
 }
 @media (min-width: 850px) and (min-height: 700px) {
   .condition { font-size: 21px; line-height: 26px; }
@@ -133,6 +232,10 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .day-icon { width: 32px; height: 32px; }
   .day-temperatures { font-size: 24px; }
   .day-chance .probability { font-size: 12px; }
+  .detail-slot .probability, .detail-rain { font-size: 14px; line-height: 20px; }
+  .detail-slot .wind-reading { font-size: 16px; }
+  .detail-value, .detail-value .probability, .detail-value .wind-reading { font-size: 24px; }
+  .detail-sub { font-size: 13px; }
 }
 @media (max-width: 849px) {
   .dashboard { padding: 18px; }
@@ -176,6 +279,30 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .day-card { padding: 8px; }
   .day-temperatures { margin: 4px 0 2px; }
   .dashboard-page .footer { position: fixed; left: 18px; bottom: 0; width: calc(100% - 36px); margin: 0; background: #10191d; }
+  /* Portrait sheet: hero beside a two-by-two grid of daily figures. */
+  .sheet-body { overflow: hidden; }
+  .detail-hero { width: 38%; height: calc(22rem - 10px); padding-top: calc(5rem - 10px); }
+  .detail-stat { width: calc(31% - 10px); height: calc(11rem - 10px); padding-top: calc(2rem - 4px); }
+  .detail-stat:nth-child(n+4) { margin-top: 10px; }
+  .detail-icon { display: block; width: calc(6rem + 10px); height: calc(6rem + 10px); margin: 0 0 8px; }
+  .detail-timeline { position: absolute; top: calc(22rem + 20px); bottom: 16px; left: 20px; right: 20px; margin: 0; }
+  .detail-curve { position: absolute; top: 40px; bottom: calc(22rem + 20px); left: 0; right: 0; height: auto; }
+  .detail-slots { position: absolute; bottom: 0; left: 0; height: calc(22rem + 20px); }
+  .detail-slot-icon { width: 5rem; height: 5rem; margin: 1rem auto; }
+  .detail-slot .hour-label { font-size: 15px; line-height: 18px; }
+  .detail-slot .probability, .detail-rain { font-size: 14px; line-height: 20px; }
+  .detail-slot .wind-reading { font-size: 15px; }
+  .detail-slot .wind-unit { display: none; }
+  .list-panel { position: absolute; top: 16px; bottom: 16px; left: 20px; right: 20px; }
+  .day-list { height: 100%; }
+  .list-cell { height: auto; padding: 0 8px; }
+  .list-day { width: 20%; padding-left: 16px; }
+  .list-condition { width: 13%; }
+  .list-label { display: none; }
+  .list-rain { width: 16%; }
+  .list-temps { width: 37%; }
+  .list-wind { width: 14%; }
+  .list-chevron { width: 32px; padding-right: 12px; }
 }
 @media (max-width: 480px) {
   .dashboard { padding: 14px 10px; }

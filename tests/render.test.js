@@ -40,6 +40,60 @@ test("Dashboard renders real values, rain intervals and all cards", function () 
   assert(h.ids["updated-at"].textContent.indexOf("heure de Paris") >= 0, "timestamp explicit");
   equal(h.ids.refresh.disabled, false, "button restored");
 });
+function tapTarget(day, time) {
+  return { getAttribute: function (key) { return key === "data-day" ? day : key === "data-time" ? time : null; }, parentNode: null };
+}
+test("Day cards open an in-page detail; the 10-day list opens days with a back control", function () {
+  var h = appHarness(), now = new Date().getTime() / 1000, data = fixture(now, 10);
+  h.requests[0].respond(200, data);
+  equal(h.ids.overlay.className || "", "", "sheet starts closed");
+  h.ids["daily-cards"].click({ target: tapTarget("2") });
+  equal(h.ids.overlay.className, "overlay open", "sheet open");
+  equal(h.ids.overlay.attributes["aria-hidden"], "false", "sheet exposed");
+  equal(h.ids.dashboard.attributes["aria-hidden"], "true", "dashboard hidden from assistive tech");
+  equal(h.ids["sheet-title"].textContent, W.dayDetail(data, now, 2).title, "day title");
+  equal((h.ids["sheet-body"].innerHTML.match(/class="detail-slot[ "]/g) || []).length, 8, "eight timeline columns");
+  assert(h.ids["detail-curve"].innerHTML.indexOf("<svg") === 0, "temperature curve drawn");
+  assert(h.ids["sheet-back"].className.indexOf("is-hidden") >= 0, "no back control from a card");
+  h.ids["more-days"].click();
+  equal((h.ids["sheet-body"].innerHTML.match(/class="list-row"/g) || []).length, 10, "ten rows");
+  equal(h.ids["sheet-title"].textContent, "10 jours", "list title");
+  h.ids["sheet-body"].click({ target: tapTarget("5") });
+  equal(h.ids["sheet-title"].textContent, W.dayDetail(data, now, 5).title, "row opens its day");
+  equal(h.ids["sheet-back"].className, "sheet-back", "back control visible");
+  h.ids["sheet-back"].click();
+  equal((h.ids["sheet-body"].innerHTML.match(/class="list-row"/g) || []).length, 10, "back to the list");
+  h.ids["sheet-close"].click();
+  equal(h.ids.overlay.className, "overlay", "closed");
+  equal(h.ids.overlay.attributes["aria-hidden"], "true", "sheet hidden");
+  h.ids["current-panel"].click({ target: tapTarget("0") });
+  equal(h.ids.overlay.className, "overlay open", "current panel opens today");
+  h.listeners.keydown({ keyCode: 27 });
+  equal(h.ids.overlay.className, "overlay", "Escape closes");
+  h.ids["daily-cards"].click({ target: tapTarget(null) });
+  equal(h.ids.overlay.className, "overlay", "taps between cards do nothing");
+});
+test("An hourly card opens its day with the matching three-hour column highlighted", function () {
+  var h = appHarness(), now = new Date().getTime() / 1000, data = fixture(now, 10), slot = W.hourSlots(data, now)[1];
+  h.requests[0].respond(200, data);
+  h.ids["hourly-cards"].click({ target: tapTarget(String(Math.round((W.calendarDay(slot.time) - W.calendarDay(now)) / 86400)), String(slot.time)) });
+  equal((h.ids["sheet-body"].innerHTML.match(/ selected"/g) || []).length, 1, "one highlighted column");
+});
+test("Day detail shows unavailable values as dashes and keeps untrusted values out of markup", function () {
+  var h = appHarness(), now = new Date().getTime() / 1000, data = fixture(now, 10);
+  data.daily.precipitation_sum[1] = null; data.daily.wind_gusts_10m_max[1] = null; data.daily.sunrise[1] = '<img src=x onerror="alert(1)">';
+  data.daily.uv_index_max[1] = "<script>alert(1)</script>"; data.daily.weather_code[1] = "../../unexpected";
+  h.requests[0].respond(200, data);
+  h.ids["daily-cards"].click({ target: tapTarget("1") });
+  var html = h.ids["sheet-body"].innerHTML;
+  assert(html.indexOf("Cumul indisponible") >= 0, "missing daily rain is not zero");
+  assert(html.indexOf("Rafales —") >= 0, "missing gusts");
+  assert(html.indexOf("Durée du jour indisponible") >= 0, "no daylight without sunrise");
+  assert(html.indexOf("<script") === -1 && html.indexOf("onerror") === -1 && html.indexOf("unexpected") === -1, "no injected markup or icon path");
+  assert(html.indexOf("assets/unknown.svg") >= 0, "unknown daily weather icon");
+  h.ids["more-days"].click();
+  assert(h.ids["sheet-body"].innerHTML.indexOf("unexpected") === -1, "list icons allowlisted too");
+});
 test("Radar link stays inside the home-screen app and stays a plain link in Safari", function () {
   var h = appHarness(), prevented = false, event = { preventDefault: function () { prevented = true; } };
   h.ids["radar-link"].href = "https://example.test/radar/";
@@ -60,7 +114,7 @@ test("Dashboard first-load failure is explicit and manual refresh recovers", fun
 });
 test("Cached stale weather remains visible after network failure", function () {
   var now = new Date().getTime(), data = fixture(now / 1000);
-  var h = appHarness(JSON.stringify({ version: 1, data: data, receivedAt: now - 7200000 }));
+  var h = appHarness(JSON.stringify({ version: W.CACHE_VERSION, data: data, receivedAt: now - 7200000 }));
   assert(h.document.body.className.indexOf("stale") >= 0, "old cache marked immediately");
   var before = h.ids["current-temperature"].innerHTML;
   h.requests[0].respond(500, {});

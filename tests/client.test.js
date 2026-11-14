@@ -27,7 +27,7 @@ test("Initial success, no concurrent requests and 15-minute refresh", function (
 test("Successful response persists; storage errors fall back to memory", function () {
   var storage = memoryStorage(), h = harness(storage);
   h.client.refresh(true); h.requests[0].respond(200, fixture(h.now() / 1000));
-  equal(JSON.parse(storage.value).version, 1, "versioned cache");
+  equal(JSON.parse(storage.value).version, 2, "versioned cache");
   var restored = harness(storage);
   assert(restored.client.state.data, "cache restored");
   var denied = harness({ getItem: function () { throw new Error("denied"); }, setItem: function () { throw new Error("full"); } });
@@ -37,9 +37,10 @@ test("Successful response persists; storage errors fall back to memory", functio
 test("Bad cache ignored, stale cache retained, future cache rejected", function () {
   equal(harness(memoryStorage("{bad")).client.state.data, null, "invalid JSON");
   var now = epoch(2026, 11, 11, 10) * 1000, data = fixture(now / 1000);
-  var old = harness(memoryStorage(JSON.stringify({ version: 1, data: data, receivedAt: now - 7200000 })));
+  var old = harness(memoryStorage(JSON.stringify({ version: W.CACHE_VERSION, data: data, receivedAt: now - 7200000 })));
   assert(old.client.state.data && W.isStale(old.client.state.receivedAt, now), "old data is available and stale");
-  equal(harness(memoryStorage(JSON.stringify({ version: 1, data: data, receivedAt: now + 86400000 }))).client.state.data, null, "future cache");
+  equal(harness(memoryStorage(JSON.stringify({ version: W.CACHE_VERSION, data: data, receivedAt: now + 86400000 }))).client.state.data, null, "future cache");
+  equal(harness(memoryStorage(JSON.stringify({ version: 1, data: data, receivedAt: now - 60000 }))).client.state.data, null, "previous cache format ignored");
 });
 test("Network failure keeps data and retries after cooldown", function () {
   var h = harness(), c = h.client;

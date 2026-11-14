@@ -1,6 +1,6 @@
 # Weather dashboard for old iPads
 
-A lightweight, French-language weather dashboard for Safari on **iOS 9.3.5**: current conditions, rain over the next hour, six hourly forecasts, three upcoming days and a full-screen rain radar of the past hour, extended by an estimated forecast for the next hour. Plain HTML, CSS and ES5 JavaScript, with no build step, accounts, API keys or production dependencies.
+A lightweight, French-language weather dashboard for Safari on **iOS 9.3.5**: current conditions, rain over the next hour, six hourly forecasts, three upcoming days (tap a day, an hour or the current conditions for that day's detail, or "10 jours" for a ten-day list) and a full-screen rain radar of the past hour, extended by an estimated forecast for the next hour. Plain HTML, CSS and ES5 JavaScript, with no build step, accounts, API keys or production dependencies.
 
 **[Open the dashboard](https://jbgour.github.io/weather-station-ios-9/)** · Designed for a landscape iPad, including full-screen mode. In Safari, use **Share → Add to Home Screen**.
 
@@ -53,6 +53,6 @@ Weather data: [Open-Meteo](https://open-meteo.com/), [CC BY 4.0](https://creativ
 python3 scripts/test.py
 ```
 
-Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, wind, storage failures, network recovery, layout sizing, radar manifest and tile validation, the radar nowcast motion estimate, radar page behavior (timeline, forecast, gestures) with a fake DOM, weather icon files, the Pages file allowlist and the certificate fingerprint.
+Requires Python 3 and either Node.js or macOS JavaScriptCore; no packages to install. Tests cover time/DST, rain intervals, the ten-day list and day detail (three-hour slots and rain sums), wind, storage failures, network recovery, layout sizing, radar manifest and tile validation, the radar nowcast motion estimate, radar page behavior (timeline, forecast, gestures) with a fake DOM, weather icon files, the Pages file allowlist and the certificate fingerprint.
 
 For visual changes, test landscape at **1024 × 600, 748 and 768 CSS pixels** and portrait at **768 × 870 to 1024**; both must fit without scrolling. On the physical iPad, check full-screen mode, refresh after 15 minutes asleep and recovery after losing Wi-Fi. See [AGENTS.md](AGENTS.md) for development constraints.

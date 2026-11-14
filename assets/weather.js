@@ -6,15 +6,22 @@
   var STALE = 60 * MINUTE;
   /* Change these three values to use another city in the Europe/Paris timezone. */
   var LOCATION = { name: "Lyon", latitude: 45.75, longitude: 4.85 };
-  var CACHE_KEY = "weather:" + LOCATION.latitude + ":" + LOCATION.longitude + ":Europe/Paris:v1";
+  var CACHE_KEY = "weather:" + LOCATION.latitude + ":" + LOCATION.longitude + ":Europe/Paris:v2";
   var BASIC_API_URL = "https://api.open-meteo.com/v1/forecast?latitude=" + encodeURIComponent(LOCATION.latitude) +
     "&longitude=" + encodeURIComponent(LOCATION.longitude);
+  /* Cache format version: bump with CACHE_KEY when the request gains fields the UI expects. */
+  var CACHE_VERSION = 2;
+  var DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+  var MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  var SHORT_MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  /* Ten days (today included) feed the dashboard, the 10-day list and the day detail in one request. */
   var API_URL = BASIC_API_URL +
     "&current=temperature_2m,apparent_temperature,weather_code,is_day,wind_speed_10m,wind_direction_10m" +
     "&minutely_15=precipitation&forecast_minutely_15=8" +
-    "&hourly=temperature_2m,weather_code,is_day,precipitation_probability,wind_speed_10m,wind_direction_10m" +
-    "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
-    "&forecast_days=4&timezone=Europe%2FParis&timeformat=unixtime" +
+    "&hourly=temperature_2m,weather_code,is_day,precipitation_probability,precipitation,wind_speed_10m,wind_direction_10m" +
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum," +
+    "wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,uv_index_max,sunrise,sunset" +
+    "&forecast_days=10&timezone=Europe%2FParis&timeformat=unixtime" +
     "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm";
 
   function number(value) { return typeof value === "number" && isFinite(value); }
@@ -56,6 +63,16 @@
     if (value === 0) { return "0"; }
     if (value < 0.1) { return "< 0,1"; }
     return value.toFixed(1).replace(".", ",");
+  }
+  function duration(seconds) {
+    if (!number(seconds) || seconds <= 0 || seconds > 86400) { return "—"; }
+    var minutes = Math.round(seconds / 60);
+    return Math.floor(minutes / 60) + " h " + pad(minutes % 60);
+  }
+  function uv(value) {
+    if (!number(value) || value < 0) { return { value: "—", label: "Indisponible" }; }
+    var rounded = Math.round(value);
+    return { value: String(rounded), label: rounded <= 2 ? "Faible" : rounded <= 5 ? "Modéré" : rounded <= 7 ? "Élevé" : rounded <= 10 ? "Très élevé" : "Extrême" };
   }
   function wind(speed, direction) {
     if (!number(speed) || speed < 0) { return "—"; }
@@ -121,35 +138,95 @@
     }
     return slots;
   }
+  function nonNegative(value) { return value !== null && value >= 0 ? value : null; }
+  function hourSample(data, timestamp) {
+    var index = indexAt(data.hourly, timestamp);
+    return { time: timestamp, temperature: at(data.hourly, "temperature_2m", index),
+      probability: at(data.hourly, "precipitation_probability", index),
+      windSpeed: at(data.hourly, "wind_speed_10m", index), windDirection: at(data.hourly, "wind_direction_10m", index),
+      condition: weather(at(data.hourly, "weather_code", index), at(data.hourly, "is_day", index)) };
+  }
   function hourSlots(data, nowSeconds) {
-    var slots = [], start = Math.ceil(nowSeconds / 3600) * 3600, i, timestamp, index;
-    for (i = 0; i < 6; i += 1) {
-      timestamp = start + i * 7200;
-      index = indexAt(data.hourly, timestamp);
-      slots.push({ time: timestamp, temperature: at(data.hourly, "temperature_2m", index),
-        probability: at(data.hourly, "precipitation_probability", index),
-        windSpeed: at(data.hourly, "wind_speed_10m", index), windDirection: at(data.hourly, "wind_direction_10m", index),
-        condition: weather(at(data.hourly, "weather_code", index), at(data.hourly, "is_day", index)) });
-    }
+    var slots = [], start = Math.ceil(nowSeconds / 3600) * 3600, i;
+    for (i = 0; i < 6; i += 1) { slots.push(hourSample(data, start + i * 7200)); }
     return slots;
   }
-  function daySlots(data, nowSeconds) {
-    var slots = [], today = calendarDay(nowSeconds), days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-    var i, j, wanted, index, date;
-    for (i = 1; i <= 3; i += 1) {
-      wanted = today + i * 86400;
-      index = -1;
-      for (j = 0; j < data.daily.time.length; j += 1) {
-        /* Daily epoch labels use the response's fixed offset, including DST weeks. */
-        date = new Date((data.daily.time[j] + data.utc_offset_seconds) * 1000);
-        if (dateKey(date) === dateKey(new Date(wanted * 1000))) { index = j; break; }
-      }
-      slots.push({ label: i === 1 ? "Demain" : days[new Date(wanted * 1000).getUTCDay()],
-        min: at(data.daily, "temperature_2m_min", index), max: at(data.daily, "temperature_2m_max", index),
-        probability: at(data.daily, "precipitation_probability_max", index),
-        condition: weather(at(data.daily, "weather_code", index), 1) });
+  /* Rain over [start, end): hourly totals cover the preceding hour, so sum the samples ending
+     inside the block. Any missing hour makes the whole block unavailable, never zero. */
+  function blockRain(data, start, end) {
+    var total = 0, timestamp, value;
+    for (timestamp = start + 3600; timestamp <= end; timestamp += 3600) {
+      value = nonNegative(at(data.hourly, "precipitation", indexAt(data.hourly, timestamp)));
+      if (value === null) { return null; }
+      total += value;
     }
+    return Math.round(total * 100) / 100;
+  }
+  function dailyIndex(data, dayStart) {
+    var j;
+    if (!data.daily || !array(data.daily.time)) { return -1; }
+    for (j = 0; j < data.daily.time.length; j += 1) {
+      /* Daily epoch labels use the response's fixed offset, including DST weeks. */
+      if (number(data.daily.time[j]) && dateKey(new Date((data.daily.time[j] + data.utc_offset_seconds) * 1000)) === dateKey(new Date(dayStart * 1000))) { return j; }
+    }
+    return -1;
+  }
+  function dayLabel(offset, dayStart) {
+    return offset === 0 ? "Aujourd’hui" : offset === 1 ? "Demain" : DAYS[new Date(dayStart * 1000).getUTCDay()];
+  }
+  function daySummary(data, nowSeconds, offset) {
+    var dayStart = calendarDay(nowSeconds) + offset * 86400, index = dailyIndex(data, dayStart), date = new Date(dayStart * 1000);
+    var sunrise = at(data.daily, "sunrise", index), sunset = at(data.daily, "sunset", index);
+    return { offset: offset, available: index >= 0, label: dayLabel(offset, dayStart),
+      date: date.getUTCDate() + " " + SHORT_MONTHS[date.getUTCMonth()],
+      title: DAYS[date.getUTCDay()] + " " + date.getUTCDate() + " " + MONTHS[date.getUTCMonth()],
+      min: at(data.daily, "temperature_2m_min", index), max: at(data.daily, "temperature_2m_max", index),
+      probability: at(data.daily, "precipitation_probability_max", index),
+      precipitation: nonNegative(at(data.daily, "precipitation_sum", index)),
+      windMax: nonNegative(at(data.daily, "wind_speed_10m_max", index)), gustMax: nonNegative(at(data.daily, "wind_gusts_10m_max", index)),
+      windDirection: at(data.daily, "wind_direction_10m_dominant", index), uv: at(data.daily, "uv_index_max", index),
+      sunrise: sunrise, sunset: sunset, daylight: sunrise !== null && sunset !== null ? sunset - sunrise : null,
+      condition: weather(at(data.daily, "weather_code", index), 1) };
+  }
+  function daySlots(data, nowSeconds) {
+    var slots = [], i;
+    for (i = 1; i <= 3; i += 1) { slots.push(daySummary(data, nowSeconds, i)); }
     return slots;
+  }
+  /* Up to ten days from today; days absent from the response (old cache) are left out. */
+  function dayList(data, nowSeconds) {
+    var days = [], i, day;
+    for (i = 0; i < 10; i += 1) {
+      day = daySummary(data, nowSeconds, i);
+      if (day.available) { days.push(day); }
+    }
+    return days;
+  }
+  /* Day detail: daily summary, every hourly temperature of that Paris day for the curve,
+     and three-hour slots (00h, 03h ... 21h) for the timeline. Null when the day is unknown. */
+  function dayDetail(data, nowSeconds, offset) {
+    var day, curve = [], slots = [], seen = {}, j, timestamp, hour, slot, dayStart;
+    if (!number(offset) || offset < 0 || offset > 9 || Math.round(offset) !== offset || !data.hourly || !array(data.hourly.time)) { return null; }
+    day = daySummary(data, nowSeconds, offset);
+    dayStart = calendarDay(nowSeconds) + offset * 86400;
+    for (j = 0; j < data.hourly.time.length; j += 1) {
+      timestamp = data.hourly.time[j];
+      if (!number(timestamp) || calendarDay(timestamp) !== dayStart) { continue; }
+      hour = parisDate(timestamp).getUTCHours();
+      curve.push({ time: timestamp, hour: hour, temperature: at(data.hourly, "temperature_2m", j) });
+      if (hour % 3 === 0 && !seen[hour]) {
+        seen[hour] = true;
+        slot = hourSample(data, timestamp);
+        slot.hour = hour;
+        slot.end = timestamp + 10800;
+        slot.rain = blockRain(data, timestamp, slot.end);
+        slots.push(slot);
+      }
+    }
+    if (!day.available && !slots.length) { return null; }
+    day.curve = curve;
+    day.slots = slots;
+    return day;
   }
   function isStale(receivedAt, now) { return !number(receivedAt) || now - receivedAt >= STALE || receivedAt - now > 5 * MINUTE; }
 
@@ -163,7 +240,7 @@
       var cached;
       try {
         cached = storage && JSON.parse(storage.getItem(CACHE_KEY));
-        if (cached && cached.version === 1 && number(cached.receivedAt) && cached.receivedAt <= now() + 5 * MINUTE && validData(cached.data)) {
+        if (cached && cached.version === CACHE_VERSION && number(cached.receivedAt) && cached.receivedAt <= now() + 5 * MINUTE && validData(cached.data)) {
           state.data = cached.data;
           state.receivedAt = cached.receivedAt;
         }
@@ -190,7 +267,7 @@
         if (data) {
           state.data = data;
           state.receivedAt = now();
-          try { if (storage) { storage.setItem(CACHE_KEY, JSON.stringify({ version: 1, data: data, receivedAt: state.receivedAt })); } } catch (ignore) { /* Memory remains available. */ }
+          try { if (storage) { storage.setItem(CACHE_KEY, JSON.stringify({ version: CACHE_VERSION, data: data, receivedAt: state.receivedAt })); } } catch (ignore) { /* Memory remains available. */ }
         }
         changed(state);
       }
@@ -224,8 +301,8 @@
     restore();
     return { state: state, refresh: refresh, tick: function () { changed(state); refresh(false); } };
   }
-  root.LyonWeather = { LOCATION: LOCATION, BASIC_API_URL: BASIC_API_URL, API_URL: API_URL, CACHE_KEY: CACHE_KEY, number: number, time: time, parisOffset: parisOffset,
+  root.LyonWeather = { LOCATION: LOCATION, BASIC_API_URL: BASIC_API_URL, API_URL: API_URL, CACHE_KEY: CACHE_KEY, CACHE_VERSION: CACHE_VERSION, number: number, time: time, parisOffset: parisOffset,
     calendarDay: calendarDay, updatedLabel: updatedLabel, temperature: temperature, probability: probability,
     amount: amount, wind: wind, windRotation: windRotation, windColor: windColor, weather: weather, validData: validData, rainSlots: rainSlots,
-    hourSlots: hourSlots, daySlots: daySlots, isStale: isStale, createClient: createClient };
+    hourSlots: hourSlots, daySlots: daySlots, dayList: dayList, dayDetail: dayDetail, duration: duration, uv: uv, isStale: isStale, createClient: createClient };
 }(typeof window !== "undefined" ? window : this));
