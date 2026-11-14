@@ -55,8 +55,9 @@ test("Day cards open an in-page detail; the 10-day list opens days with a back c
   equal((h.ids["sheet-body"].innerHTML.match(/class="detail-slot[ "]/g) || []).length, 8, "eight timeline columns");
   assert(h.ids["detail-curve"].innerHTML.indexOf("<svg") === 0, "temperature curve drawn");
   assert(h.ids["sheet-back"].className.indexOf("is-hidden") >= 0, "no back control from a card");
-  h.ids["more-days"].click();
+  h.ids["daily-cards"].click({ target: tapTarget("list") });
   equal((h.ids["sheet-body"].innerHTML.match(/class="list-row"/g) || []).length, 10, "ten rows");
+  assert(h.ids["daily-cards"].innerHTML.indexOf('class="day-card more-card"') > 0, "ten-day card follows the three days");
   equal(h.ids["sheet-title"].textContent, "10 jours", "list title");
   h.ids["sheet-body"].click({ target: tapTarget("5") });
   equal(h.ids["sheet-title"].textContent, W.dayDetail(data, now, 5).title, "row opens its day");
@@ -92,7 +93,7 @@ test("Day detail shows unavailable values as dashes and keeps untrusted values o
   assert(html.indexOf("Durée du jour indisponible") >= 0, "no daylight without sunrise");
   assert(html.indexOf("<script") === -1 && html.indexOf("onerror") === -1 && html.indexOf("unexpected") === -1, "no injected markup or icon path");
   assert(html.indexOf("assets/unknown.svg") >= 0, "unknown daily weather icon");
-  h.ids["more-days"].click();
+  h.ids["daily-cards"].click({ target: tapTarget("list") });
   assert(h.ids["sheet-body"].innerHTML.indexOf("unexpected") === -1, "list icons allowlisted too");
 });
 test("Radar link stays inside the home-screen app and stays a plain link in Safari", function () {

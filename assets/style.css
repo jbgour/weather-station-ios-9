@@ -13,7 +13,8 @@ h2 { margin: 0; color: #b4c2c3; font-size: 11px; line-height: 14px; font-weight:
 .panel { display: table-cell; vertical-align: top; background: #192529; border: 1px solid #2a383d; border-radius: 10px; padding: 16px 20px 12px; }
 .current { width: 32%; }
 .rain { width: 46%; }
-/* Compact entry point to the radar page; the whole card is the tap target. */
+/* Compact entry point to the radar page; the whole card is the tap target (no button). */
+.card-chevron { margin-left: 4px; color: #b8d9bd; font-size: 15px; font-weight: 600; vertical-align: -1px; }
 .radar-card { color: #edf1ef; text-decoration: none; }
 .radar-card:active { background: #1f2e33; border-color: #45575c; }
 .radar-thumb { display: block; position: relative; height: 150px; margin-top: 12px; overflow: hidden; border: 1px solid #2f4247; border-radius: 6px; background-color: #17262b; background-image: url(../radar/basemap-z6.svg); background-position: center; background-size: cover; }
@@ -21,8 +22,6 @@ h2 { margin: 0; color: #b4c2c3; font-size: 11px; line-height: 14px; font-weight:
 .radar-ring-outer { width: 104px; height: 104px; margin: -52px 0 0 -52px; border-color: rgba(139, 189, 201, .18); }
 .radar-pin { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 2px solid #10191d; border-radius: 50%; background: #b8d9bd; }
 .radar-city { position: absolute; top: 50%; left: 50%; margin: 6px 0 0 8px; color: #e3edeb; font-size: 12px; line-height: 14px; text-shadow: 0 0 3px #10191d, 0 0 3px #10191d; }
-.radar-open { display: block; min-height: 44px; margin-top: 10px; padding: 0 12px; border: 1px solid #45575c; border-radius: 7px; background: #223237; color: #edf1ef; font-size: 13px; line-height: 42px; text-align: center; white-space: nowrap; }
-.radar-open span { margin-left: 8px; font-size: 19px; vertical-align: -1px; }
 .current-main { height: 80px; margin-top: 8px; white-space: nowrap; text-align: center; }
 .hero-icon { width: 64px; height: 64px; vertical-align: middle; margin-right: 10px; }
 .hero-temperature { font-size: 72px; font-weight: 300; line-height: 80px; letter-spacing: -4px; vertical-align: middle; }
@@ -88,14 +87,15 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
 .empty-message { color: #a6b6b9; font-size: 14px; line-height: 22px; padding: 24px 0; margin: 0; }
 .no-script { color: #ebc58d; }
 /* Tappable dashboard areas open the detail sheet; :active gives iOS tap feedback. */
+/* Narrow fourth card after the three days, opening the ten-day list. */
+.more-card { width: 13%; text-align: center; }
+.more-card { white-space: nowrap; }
+.more-title { color: #d9e4e1; font-size: 14px; line-height: 18px; font-weight: 600; }
+.more-chevron { margin-left: 5px; color: #b8d9bd; font-size: 20px; line-height: 18px; vertical-align: -1px; }
 .current, .day-card { cursor: pointer; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
 .current:active, .day-card:active { background: #1f2e33; border-color: #45575c; }
 .days { position: relative; }
 /* Small pill in the "Les jours à venir" header; the transparent button keeps a 44-pixel target. */
-.more-days { position: absolute; top: -15px; right: -10px; height: 44px; min-height: 44px; padding: 0 10px 0 28px; border: 0; background: transparent; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
-.more-days .more-days-pill { display: inline-block; margin: 0; padding: 0 9px 0 11px; border: 1px solid #45575c; border-radius: 12px; background: #1a272b; color: #d9e4e1; font-size: 12px; line-height: 22px; font-weight: 600; vertical-align: middle; }
-.more-days .more-days-chevron { margin: 0 0 0 5px; font-size: 16px; vertical-align: -1px; }
-.more-days:active .more-days-pill { background: #2a3c42; border-color: #6b8085; }
 /* Detail sheet over the dashboard. Visibility is delayed on close so the fade can finish. */
 .overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 20; visibility: hidden; opacity: 0; background: rgba(5, 9, 11, .74); -webkit-transition: opacity .25s ease, visibility 0s linear .25s; transition: opacity .25s ease, visibility 0s linear .25s; }
 .overlay.open { visibility: visible; opacity: 1; -webkit-transition: opacity .25s ease; transition: opacity .25s ease; }
@@ -194,9 +194,8 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .rain-slots { margin-top: calc(8rem - 28px); }
   .rain-chart { height: calc(50rem - 220px); }
   .radar-card { position: relative; }
-  .radar-thumb { position: absolute; top: 42px; bottom: 68px; left: 20px; right: 20px; height: auto; margin: 0; }
-  .radar-open { position: absolute; left: 20px; right: 20px; bottom: 12px; margin: 0; }
-  .hourly-cards { height: calc(30rem - 42px); }
+  .radar-thumb { position: absolute; top: 42px; bottom: 16px; left: 20px; right: 20px; height: auto; margin: 0; }
+    .hourly-cards { height: calc(30rem - 42px); }
   .hour-icon { width: calc(12rem - 40px); height: calc(12rem - 40px); }
   .hour-temperature { font-size: calc(5rem - 3px); line-height: 5rem; }
   .daily-cards { height: calc(20rem - 68px); }
@@ -264,12 +263,12 @@ button:focus, a:focus { outline: 2px solid #c2e1e7; outline-offset: 3px; }
   .current-details { position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); }
   .rain-slots { margin: calc(4rem - 20px) 0 0; }
   .rain-chart { height: calc(35rem - 176px); }
-  /* The radar card becomes a full-width strip below the first row: map left, title and button right. */
+  /* The radar card becomes a full-width strip below the first row: the map fills it, with the title over it. */
   .radar-card { display: table-caption; caption-side: bottom; position: relative; width: calc(100% - 32px); height: calc(13rem - 20px); margin: 16px 0 0 16px; padding: 0; }
-  .radar-thumb { position: absolute; top: 12px; bottom: 12px; left: 12px; width: 40%; height: auto; margin: 0; }
-  .radar-card .section-top { position: absolute; top: 16px; left: calc(40% + 32px); width: calc(60% - 52px); }
-  .radar-open { position: absolute; left: calc(40% + 32px); right: 20px; bottom: 12px; margin: 0; }
-  .hours, .days { margin-top: 14px; }
+  .radar-thumb { position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px; height: auto; margin: 0; }
+  .radar-card .section-top { position: absolute; z-index: 1; top: 18px; left: 18px; width: auto; padding: 5px 10px; border-radius: 6px; background: rgba(16, 25, 29, .78); }
+  .radar-card .section-top h2 { padding-right: 14px; }
+    .hours, .days { margin-top: 14px; }
   .hourly-cards { height: calc(27rem - 54px); }
   .hour-icon { width: calc(7rem - 26px); height: calc(7rem - 26px); }
   .hour-temperature { font-size: calc(3rem - 2px); line-height: 4rem; }

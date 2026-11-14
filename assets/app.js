@@ -31,8 +31,9 @@
   function icon(condition, className) {
     return '<img class="' + className + '" src="assets/' + condition.icon + '.svg" alt="' + escape(condition.label) + '">';
   }
-  function chance(value, daily) {
-    return '<span class="probability" aria-label="' + (daily ? 'Probabilité horaire maximale de pluie : ' : 'Probabilité de pluie : ') + escape(W.probability(value)) + '"><img class="drop" src="assets/drop.svg" alt="">' + W.probability(value) + (daily ? ' max.' : '') + '</span>';
+  /* compact drops the visible " max." suffix (kept for screen readers) where space is tight. */
+  function chance(value, daily, compact) {
+    return '<span class="probability" aria-label="' + (daily ? 'Probabilité horaire maximale de pluie : ' : 'Probabilité de pluie : ') + escape(W.probability(value)) + '"><img class="drop" src="assets/drop.svg" alt="">' + W.probability(value) + (daily && !compact ? ' max.' : '') + '</span>';
   }
   function windReading(speed, direction) {
     var available = W.number(speed) && speed >= 0;
@@ -76,7 +77,12 @@
       html += '<div class="day-card" role="button" tabindex="0" data-day="' + slot.offset + '"><div class="day-content"><span class="day-identity">' + icon(slot.condition, "day-icon") + '<span class="day-name">' + slot.label + '</span></span>' +
         '<span class="day-temperatures"><span aria-label="Maximum ' + escape(W.temperature(slot.max)) + '">' + W.temperature(slot.max) + '</span>' +
         '<span class="day-min" aria-label="Minimum ' + escape(W.temperature(slot.min)) + '">' + W.temperature(slot.min) + '</span></span>' +
-        '<span class="day-chance">' + chance(slot.probability, true) + '</span></div></div>';
+        '<span class="day-chance">' + chance(slot.probability, true, true) + '</span></div></div>';
+    }
+    /* A narrow fourth card opens the ten-day list. */
+    if (slots.length) {
+      html += '<div class="day-card more-card" role="button" tabindex="0" aria-haspopup="dialog" data-day="list">' +
+        '<span class="more-title">10 jours</span><span class="more-chevron" aria-hidden="true">›</span></div>';
     }
     element("daily-cards").innerHTML = html;
   }
@@ -248,7 +254,7 @@
     var node = event && event.target, value;
     while (node) {
       value = node.getAttribute ? node.getAttribute("data-day") : null;
-      if (value !== null && value !== undefined && /^[0-9]$/.test(value)) { return node; }
+      if (value !== null && value !== undefined && /^([0-9]|list)$/.test(value)) { return node; }
       if (node === container) { break; }
       node = node.parentNode;
     }
@@ -323,10 +329,11 @@
     }
   }, false);
   /* Taps on a day card or the current panel open that day's detail; hourly cards are display only. */
-  delegate("daily-cards", function (offset) { openSheet("detail", offset, false); });
+  delegate("daily-cards", function (offset, target) {
+    if (target.getAttribute("data-day") === "list") { openSheet("list", 0, false); } else { openSheet("detail", offset, false); }
+  });
   delegate("current-panel", function (offset) { openSheet("detail", offset, false); });
-  element("more-days").addEventListener("click", function () { openSheet("list", 0, false); }, false);
-  delegate("sheet-body", function (offset) { if (sheet.view === "list") { openSheet("detail", offset, true); } });
+  delegate("sheet-body", function (offset) { if (sheet.view === "list" && !isNaN(offset)) { openSheet("detail", offset, true); } });
   element("sheet-back").addEventListener("click", function () { openSheet("list", 0, false); }, false);
   element("sheet-close").addEventListener("click", closeSheet, false);
   element("overlay").addEventListener("click", function (event) {
